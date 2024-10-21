@@ -1,0 +1,8 @@
+{
+    "githubPullRequests.ignoredPullRequestBranches": [
+        "preint"
+    ],
+    "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit"
+    }
+}
