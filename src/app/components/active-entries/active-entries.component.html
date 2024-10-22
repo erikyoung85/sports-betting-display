@@ -1,12 +1,25 @@
-<div *ngIf="((activeSlips$ | async) ?? []) as activeSlips">
-  <mat-accordion>
-    <div *ngFor="let activeSlip of activeSlips">
-      <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title> {{ activeSlip.selections.length }} Picks for ${{ Number(activeSlip.fee) * Number(activeSlip.initial_max_payout_multiplier) }} </mat-panel-title>
-        </mat-expansion-panel-header>
-        <p>This is the primary content of the panel.</p>
-      </mat-expansion-panel>
-    </div>
-  </mat-accordion>
+<h3>Erik's bets</h3>
+<div *ngIf="((activeSlips$ | async) ?? []) as activeSlips" style="display: flex; flex-direction: column; gap: 8px; justify-content: flex-start; align-items: center;">
+  <ng-content *ngFor="let activeSlip of activeSlips">
+    <mat-card style="width: 400px;">
+      <mat-card-header>
+        <mat-card-title>{{ activeSlip.selectionCount }} Picks to {{ activeSlip.payoutMultiplier }}x Money</mat-card-title>
+        <mat-card-subtitle>{{ activeSlip.fee | money }} down for {{ activeSlip.maxPayout | money }} payout</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+
+        <mat-list>
+          <mat-list-item *ngFor="let selection of activeSlip.selections">
+            <img matListItemAvatar [src]="selection.player.imageUrl">
+            <span matListItemTitle style="font-weight: 700;">{{ selection.playerName }}</span>
+            <span matListItemLine>
+              <span style="font-weight: 700">{{ selection.choiceDisplay }}</span>
+              {{ selection.statTargetValue }} {{ selection.statDisplay }}
+            </span>
+            <mat-progress-bar mode="determinate" [value]="selection.progressValue"></mat-progress-bar>
+          </mat-list-item>
+        </mat-list>
+      </mat-card-content>
+    </mat-card>
+  </ng-content>
 </div>

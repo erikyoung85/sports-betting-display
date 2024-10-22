@@ -7,62 +7,6 @@ import { OwnerType } from '../enums/owner-type.enum';
 import { SeasonType } from '../enums/season-type.enum';
 import { SportType } from '../enums/sport-type.enum';
 
-export interface UnderdogFantasyBaseballStatLineDataDto {
-  hits: string;
-  rbis: string;
-  runs: string;
-  walks: string;
-  at_bats: string;
-  doubles: string;
-  singles: string;
-  triples: string;
-  home_runs: string;
-  runs_rbis: string;
-  hits_walks: string;
-  total_bases: string;
-  hit_by_pitch: string;
-  stolen_bases: string;
-  period_1_hits: string;
-  period_1_runs: string;
-  hits_runs_rbis: string;
-  batter_strikeouts: string;
-  period_1_2_3_hits: string;
-  period_1_2_3_runs: string;
-  plate_appearances: string;
-  period_1_total_bases: string;
-  period_1_hits_runs_rbis: string;
-  period_1_2_3_total_bases: string;
-  period_1_2_3_hits_runs_rbis: string;
-}
-
-export interface UnderdogFantasyFootballStatLineDataDto {
-  total_tds: string;
-  total_yds: string;
-  first_downs: string;
-  passing_att: string;
-  passing_tds: string;
-  passing_yds: string;
-  passing_ints: string;
-  passing_long: string;
-  rush_rec_tds: string;
-  rush_rec_yds: string;
-  passing_comps: string;
-  broken_tackles: string;
-  passing_rating: string;
-  passing_comp_pct: string;
-  passing_first_downs: string;
-  passing_times_sacked: string;
-  period_1_passing_tds: string;
-  period_1_passing_yds: string;
-  period_1_rush_rec_tds: string;
-  period_1_rush_rec_yds: string;
-  period_1_2_passing_tds: string;
-  period_1_2_passing_yds: string;
-  passing_and_rushing_yds: string;
-  period_1_2_rush_rec_tds: string;
-  period_1_2_rush_rec_yds: string;
-}
-
 export interface UnderdogFantasyGetActiveSlipsResponseDto {
   data: {
     appearances: {
@@ -80,9 +24,7 @@ export interface UnderdogFantasyGetActiveSlipsResponseDto {
       position_id: string;
       stat_line: {
         id: number;
-        data:
-          | UnderdogFantasyBaseballStatLineDataDto
-          | UnderdogFantasyFootballStatLineDataDto;
+        data: { [stat: string]: string };
         owner_id: string;
         owner_type: OwnerType;
         scores: {
