@@ -17,7 +17,7 @@ const USERS_BY_USERNAME = keyBy(USERS, (user) => user.username);
   providedIn: 'root',
 })
 export class UnderdogFantasyService {
-  private readonly baseUrl = 'https://api.underdogfantasy.com';
+  private readonly baseUrl = '/test';
 
   userDict$ = this.localStorage.underdogFantasyUserDict$;
 
@@ -98,33 +98,43 @@ export class UnderdogFantasyService {
       grant_type: 'refresh_token',
       refresh_token: user.refreshToken,
       scope: 'offline_access',
-      ud_client_type: 'web',
-      ud_client_version: '20241017171140',
-      ud_device_id: '5d8af858-b427-4777-8069-71f705b04b96',
     };
+
+    const headers = new HttpHeaders({
+      'Cache-Control': 'no-cache',
+    });
 
     const tokenResponse = await lastValueFrom(
       this.http.post<UnderdogFantasyAuthenticateResponseDto>(
-        'https://login.underdogsports.com/oauth/token',
-        body
+        '/underdogsports-login',
+        body,
+        {
+          withCredentials: true,
+          observe: 'response' as 'response',
+          headers: headers,
+        }
       )
     ).catch((err: Error) => err);
 
-    if (tokenResponse instanceof Error) {
-      return tokenResponse;
+    if (
+      tokenResponse instanceof Error ||
+      tokenResponse.status !== 200 ||
+      tokenResponse.body === null
+    ) {
+      return Error('Error refreshing token');
     }
 
     const userInfo: UnderdogFantasyUserInfo = {
       ...user,
-      token: tokenResponse.access_token,
-      refreshToken: tokenResponse.refresh_token,
+      token: tokenResponse.body.access_token,
+      refreshToken: tokenResponse.body.refresh_token,
       tokenExpirationDate: new Date(
-        new Date().getTime() + tokenResponse.expires_in * 1000
+        new Date().getTime() + tokenResponse.body.expires_in * 1000
       ).toISOString(),
     };
 
     this.localStorage.setUnderdogFantasyUser(userInfo);
-    return tokenResponse;
+    return tokenResponse.body;
   }
 
   private async authWithPassword(

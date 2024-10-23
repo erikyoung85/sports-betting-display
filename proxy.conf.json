@@ -1,0 +1,22 @@
+{
+    "/test": {
+        
+        "target": "https://api.underdogfantasy.com",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/test": ""
+        },
+        "logLevel": "debug"
+    },
+    "/underdogsports-login": {
+
+        "target": "https://login.underdogsports.com/oauth/token",
+        "secure": true,
+        "changeOrigin": true,
+        "pathRewrite": {
+            "^/underdogsports-login": ""
+        },
+        "logLevel": "debug"
+    }
+}
