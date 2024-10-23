@@ -11,7 +11,7 @@
     },
     "/underdogsports-login": {
 
-        "target": "https://login.underdogsports.com/oauth/token",
+        "target": "https://login.underdogsports.com",
         "secure": true,
         "changeOrigin": true,
         "pathRewrite": {

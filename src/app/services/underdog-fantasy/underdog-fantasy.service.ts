@@ -106,7 +106,7 @@ export class UnderdogFantasyService {
 
     const tokenResponse = await lastValueFrom(
       this.http.post<UnderdogFantasyAuthenticateResponseDto>(
-        '/underdogsports-login',
+        '/underdogsports-login/oauth/token',
         body,
         {
           observe: 'response' as 'response',
