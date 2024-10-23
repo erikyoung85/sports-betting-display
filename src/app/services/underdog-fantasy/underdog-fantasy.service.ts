@@ -101,7 +101,7 @@ export class UnderdogFantasyService {
     };
 
     const headers = new HttpHeaders({
-      'Cache-Control': 'no-cache',
+      'Content-Type': 'application/json',
     });
 
     const tokenResponse = await lastValueFrom(
@@ -109,7 +109,6 @@ export class UnderdogFantasyService {
         '/underdogsports-login',
         body,
         {
-          withCredentials: true,
           observe: 'response' as 'response',
           headers: headers,
         }
