@@ -17,7 +17,7 @@ const USERS_BY_USERNAME = keyBy(USERS, (user) => user.username);
   providedIn: 'root',
 })
 export class UnderdogFantasyService {
-  private readonly baseUrl = '/test';
+  private readonly baseUrl = 'https://api.underdogfantasy.com';
 
   userDict$ = this.localStorage.underdogFantasyUserDict$;
 
@@ -29,19 +29,7 @@ export class UnderdogFantasyService {
   constructor(
     private readonly http: HttpClient,
     private readonly localStorage: LocalStorageService
-  ) {
-    // const user: UnderdogFantasyUserInfo = {
-    //   username: 'young.erik22@gmail.com',
-    //   token:
-    //     'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjNnRTM4R1FUTW1lcVA5djFYVllEUCJ9.eyJ1ZF9zdWIiOiI0NWM5MjZjYS0wNDRmLTQ5MDgtYThhOS0zYTFjNWQ1MmQxOTEiLCJ1ZF9lbWFpbCI6InlvdW5nLmVyaWsyMkBnbWFpbC5jb20iLCJ1ZF91c2VybmFtZSI6ImVyaWt5b3VuZzg1IiwiaXNzIjoiaHR0cHM6Ly9sb2dpbi51bmRlcmRvZ3Nwb3J0cy5jb20vIiwic3ViIjoiYXV0aDB8NjcxMWRkMDVkYzJlNmVmNWJiMzU1YmIxIiwiYXVkIjoiaHR0cHM6Ly9hcGkudW5kZXJkb2dmYW50YXN5LmNvbSIsImlhdCI6MTcyOTYxODg2MSwiZXhwIjoxNzI5NzA1MjYxLCJzY29wZSI6Im9mZmxpbmVfYWNjZXNzIiwiZ3R5IjpbInJlZnJlc2hfdG9rZW4iLCJwYXNzd29yZCJdLCJhenAiOiJjUXZZejFUMkJBRmJpeDRkWVIzN2R5RDlPMFRoZjFzNiJ9.K5k6aPpTBJdn1QhvqS0m9b9TnbwolmWfzgHf2Sps1c9yg9hOXRjEkNzRbBAfmYsckdgJWRTzJ64HdbV15b7pC91f_fwhOzzmC2uIvHzGkbCg7WR-TpwRMtLfGPwdR6cpYj-quEQGethj3XngbOai9tzMbJrpIbsV39u_pdSOwO03oFMQ6y5un35orNZmAQ0n2n28sAk0DPaIhnln57p13YXk473C3_bgl-wxTMv3gnBX-WUjL1FCTOCKQbsJXjUVbsf8hQ_OXz_aPV3FPBRAyLJ1PpmdxRhIOoFEPLXOkuJTSJ8eCQAzuvMsV8EwsodtRQO3Z4Nm0GMPZid1eX886w',
-    //   refreshToken:
-    //     'v1.M0KPZ4h16dJ4TVROw_4jkjXO1QJlmPzj06xraHUO-3lhhDBJbKoabQU88yIve9J6vjsTtcmeGvvCApH14AmyMwI',
-    //   tokenExpirationDate: new Date(
-    //     new Date().getTime() + 86400 * 1000
-    //   ).toISOString(),
-    // };
-    // this.localStorage.setUnderdogFantasyUser(user);
-  }
+  ) {}
 
   getActiveSlips(): void {
     this.userDict$.pipe(take(1)).subscribe(async (userDict) => {
@@ -100,40 +88,28 @@ export class UnderdogFantasyService {
       scope: 'offline_access',
     };
 
-    const headers = new HttpHeaders({
-      'Content-Type': 'application/json',
-    });
-
     const tokenResponse = await lastValueFrom(
       this.http.post<UnderdogFantasyAuthenticateResponseDto>(
-        '/underdogsports-login/oauth/token',
-        body,
-        {
-          observe: 'response' as 'response',
-          headers: headers,
-        }
+        '/api/underdog/auth',
+        body
       )
     ).catch((err: Error) => err);
 
-    if (
-      tokenResponse instanceof Error ||
-      tokenResponse.status !== 200 ||
-      tokenResponse.body === null
-    ) {
+    if (tokenResponse instanceof Error) {
       return Error('Error refreshing token');
     }
 
     const userInfo: UnderdogFantasyUserInfo = {
       ...user,
-      token: tokenResponse.body.access_token,
-      refreshToken: tokenResponse.body.refresh_token,
+      token: tokenResponse.access_token,
+      refreshToken: tokenResponse.refresh_token,
       tokenExpirationDate: new Date(
-        new Date().getTime() + tokenResponse.body.expires_in * 1000
+        new Date().getTime() + tokenResponse.expires_in * 1000
       ).toISOString(),
     };
 
     this.localStorage.setUnderdogFantasyUser(userInfo);
-    return tokenResponse.body;
+    return tokenResponse;
   }
 
   private async authWithPassword(
