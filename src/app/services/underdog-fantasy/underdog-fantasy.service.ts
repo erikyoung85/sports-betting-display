@@ -64,11 +64,24 @@ export class UnderdogFantasyService {
   ): Promise<string | undefined> {
     const tokenIsExpired = new Date(user.tokenExpirationDate) < new Date();
     if (tokenIsExpired) {
-      console.log('Token is expired... refreshing');
-      const token = await this.authWithRefreshToken(user);
+      console.info(`Token is expired for ${user.username}... refreshing`);
+      let token = await this.authWithRefreshToken(user);
       if (token instanceof Error) {
-        console.error('Error refreshing token', token);
-        return;
+        console.error(`Error refreshing token for ${user.username}`, token);
+
+        // as a last resort, try to auth with password
+        console.info(`Attempting to auth with password for ${user.username}`);
+        token = await this.authWithPassword(
+          user.username,
+          USERS_BY_USERNAME[user.username].password
+        );
+        if (token instanceof Error) {
+          console.error(
+            `Error authenticating with password for ${user.username}`,
+            token
+          );
+          return;
+        }
       }
 
       return token.access_token;
@@ -89,14 +102,19 @@ export class UnderdogFantasyService {
     };
 
     const tokenResponse = await lastValueFrom(
-      this.http.post<UnderdogFantasyAuthenticateResponseDto>(
-        '/api/underdog/auth',
-        body
-      )
+      this.http.post<
+        | UnderdogFantasyAuthenticateResponseDto
+        | { error: string; error_description: string }
+      >('/api/underdog/auth', body)
     ).catch((err: Error) => err);
 
     if (tokenResponse instanceof Error) {
-      return Error('Error refreshing token');
+      return tokenResponse;
+    }
+    if ('error' in tokenResponse) {
+      return new Error(
+        tokenResponse.error + ' | ' + tokenResponse.error_description
+      );
     }
 
     const userInfo: UnderdogFantasyUserInfo = {
@@ -109,6 +127,7 @@ export class UnderdogFantasyService {
     };
 
     this.localStorage.setUnderdogFantasyUser(userInfo);
+    console.info(`Token refreshed for ${user.username}`);
     return tokenResponse;
   }
 
@@ -118,22 +137,27 @@ export class UnderdogFantasyService {
   ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
     const body = {
       audience: 'https://api.underdogfantasy.com',
+      client_id: 'cQvYz1T2BAFbix4dYR37dyD9O0Thf1s6',
       grant_type: 'password',
       username: username,
       password: password,
       scope: 'offline_access',
     };
 
-    debugger;
     const tokenResponse = await lastValueFrom(
-      this.http.post<UnderdogFantasyAuthenticateResponseDto>(
-        'https://login.underdogsports.com/oauth/token',
-        body
-      )
+      this.http.post<
+        | UnderdogFantasyAuthenticateResponseDto
+        | { error: string; error_description: string }
+      >('/api/underdog/auth', body)
     ).catch((err: Error) => err);
 
     if (tokenResponse instanceof Error) {
       return tokenResponse;
+    }
+    if ('error' in tokenResponse) {
+      return new Error(
+        tokenResponse.error + ' | ' + tokenResponse.error_description
+      );
     }
 
     const userInfo: UnderdogFantasyUserInfo = {
@@ -146,6 +170,7 @@ export class UnderdogFantasyService {
     };
 
     this.localStorage.setUnderdogFantasyUser(userInfo);
+    console.info(`Authenticated with password for ${username}`);
     return tokenResponse;
   }
 }
