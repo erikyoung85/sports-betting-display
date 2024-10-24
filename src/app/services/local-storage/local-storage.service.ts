@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { User } from '../user/models/user.model';
 
 export interface UnderdogFantasyUserInfo {
   username: string;
@@ -7,8 +7,8 @@ export interface UnderdogFantasyUserInfo {
   refreshToken: string;
   tokenExpirationDate: string;
 }
-export type UnderdogFantasyUserDict = {
-  [username: string]: UnderdogFantasyUserInfo;
+export type UserDict = {
+  [username: string]: User;
 };
 
 @Injectable({
@@ -17,18 +17,7 @@ export type UnderdogFantasyUserDict = {
 export class LocalStorageService {
   constructor() {}
 
-  _underdogFantasyUserDict$ = new BehaviorSubject<UnderdogFantasyUserDict>(
-    this.getItem<UnderdogFantasyUserDict>('underdog_users') ?? {}
-  );
-  underdogFantasyUserDict$ = this._underdogFantasyUserDict$.asObservable();
-  setUnderdogFantasyUser(user: UnderdogFantasyUserInfo): void {
-    const userDict = this._underdogFantasyUserDict$.value;
-    userDict[user.username] = user;
-    this.setItem('underdog_users', userDict);
-    this._underdogFantasyUserDict$.next(userDict);
-  }
-
-  private getItem<T>(key: string): T | undefined {
+  getItem<T>(key: string): T | undefined {
     const itemRaw = localStorage.getItem(key);
     if (itemRaw === null) {
       return undefined;
@@ -38,7 +27,7 @@ export class LocalStorageService {
     return item;
   }
 
-  private setItem<T>(key: string, item: T): void {
+  setItem<T>(key: string, item: T): void {
     localStorage.setItem(key, JSON.stringify(item));
   }
 }

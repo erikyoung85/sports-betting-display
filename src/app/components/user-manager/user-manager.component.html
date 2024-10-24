@@ -2,12 +2,18 @@
   <mat-card-header>
     <mat-card-title style="display: flex; flex-direction: row; gap: 8px;">
       Users
-      <button mat-button>
+      <button mat-raised-button (click)="onAddUser()">
         Add User
       </button>
     </mat-card-title>
   </mat-card-header>
 
-  <mat-card-content>
+  <mat-card-content 
+    *ngIf="(users$ | async) as users"
+    style="display: flex; flex-direction: row; gap: 8px; overflow-x: scroll; padding: 1rem;"
+  >
+
+    <app-user-card *ngFor="let user of users" [user]="user" (click)="onCardClick(user)" style="cursor: pointer"></app-user-card>
+
   </mat-card-content>
 </mat-card>

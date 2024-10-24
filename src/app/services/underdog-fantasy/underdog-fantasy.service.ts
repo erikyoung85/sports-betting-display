@@ -1,6 +1,5 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { keyBy } from 'lodash';
 import {
   BehaviorSubject,
   combineLatest,
@@ -9,42 +8,18 @@ import {
   Observable,
   take,
 } from 'rxjs';
-import { User } from '../../shared/models/user.model';
-import {
-  LocalStorageService,
-  UnderdogFantasyUserInfo,
-} from '../local-storage/local-storage.service';
+import { User } from '../user/models/user.model';
+import { UserService } from '../user/user.service';
 import { UnderdogFantasyAuthenticateResponseDto } from './dtos/underdog-fantasy-authenticate.response.dto';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from './dtos/underdog-fantasy-get-active-slips.response.dto';
 import { UnderdogFantasyGetSettledSlipsResponseDto } from './dtos/underdog-fantasy-get-settled-slips.response.dto';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
-
-const USERS: User[] = [
-  {
-    firstName: 'Erik',
-    lastName: 'Young',
-    underdogUsername: 'young.erik22@gmail.com',
-    underdogPassword: 'Packbrew00',
-  },
-  {
-    firstName: 'Jed',
-    lastName: 'Whetstone',
-    underdogUsername: 'whetstonejed@yahoo.com',
-    underdogPassword: 'iR3allYH8ITee!',
-  },
-];
-const USERS_BY_UNDERDOG_USERNAME = keyBy(
-  USERS,
-  (user) => user.underdogUsername
-);
 
 @Injectable({
   providedIn: 'root',
 })
 export class UnderdogFantasyService {
   private readonly baseUrl = 'https://api.underdogfantasy.com';
-
-  userDict$ = this.localStorage.underdogFantasyUserDict$;
 
   private _activeSlipsByUsername$: BehaviorSubject<{
     [username: string]: UnderdogFantasyEntrySlip[] | undefined;
@@ -59,16 +34,17 @@ export class UnderdogFantasyService {
   slipToUsers$: Observable<{
     [slipId: string]: User[];
   }> = combineLatest([
+    this.userService.users$,
     this.activeSlipsByUsername$,
     this.settledSlipsByUsername$,
   ]).pipe(
-    map(([activeSlipsByUsername, settledSlipsByUsername]) => {
+    map(([users, activeSlipsByUsername, settledSlipsByUsername]) => {
       const slipToUsers: { [slipId: string]: User[] } = {};
 
-      Object.values(USERS_BY_UNDERDOG_USERNAME).forEach((user) => {
+      users.forEach((user) => {
         const slips = [
-          ...(activeSlipsByUsername[user.underdogUsername] ?? []),
-          ...(settledSlipsByUsername[user.underdogUsername] ?? []),
+          ...(activeSlipsByUsername[user.username] ?? []),
+          ...(settledSlipsByUsername[user.username] ?? []),
         ];
         slips.forEach((slip) => {
           if (slipToUsers[slip.id] === undefined) {
@@ -85,14 +61,14 @@ export class UnderdogFantasyService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly localStorage: LocalStorageService
+    private readonly userService: UserService
   ) {}
 
   getSettledSlips(): void {
-    this.userDict$.pipe(take(1)).subscribe(async (userDict) => {
+    this.userService.userDict$.pipe(take(1)).subscribe(async (userDict) => {
       await Promise.all(
         Object.values(userDict).map(async (user) => {
-          const token = await this.getToken(user);
+          const token = await this.getUnderdogToken(user);
           if (token === undefined) return;
 
           const headers = new HttpHeaders({
@@ -120,10 +96,10 @@ export class UnderdogFantasyService {
   }
 
   getActiveSlips(): void {
-    this.userDict$.pipe(take(1)).subscribe(async (userDict) => {
+    this.userService.userDict$.pipe(take(1)).subscribe(async (userDict) => {
       await Promise.all(
         Object.values(userDict).map(async (user) => {
-          const token = await this.getToken(user);
+          const token = await this.getUnderdogToken(user);
           if (token === undefined) return;
 
           const headers = new HttpHeaders({
@@ -149,21 +125,55 @@ export class UnderdogFantasyService {
     });
   }
 
-  private async getToken(
-    user: UnderdogFantasyUserInfo
-  ): Promise<string | undefined> {
-    const tokenIsExpired = new Date(user.tokenExpirationDate) < new Date();
+  private async getUnderdogToken(user: User): Promise<string | undefined> {
+    // if we have no login info for underdog theres nothing we can do
+    if (user.underdogUserInfo === undefined) {
+      return;
+    }
+
+    // if we have no token data, try to auth with password
+    if (user.underdogUserInfo.token === undefined) {
+      const tokenOrError = await this.authWithPassword(
+        user.underdogUserInfo.username,
+        user.underdogUserInfo.password
+      );
+      if (tokenOrError instanceof Error) {
+        console.error(
+          `Error authenticating with password for ${user.username}`,
+          tokenOrError
+        );
+        return undefined;
+      }
+
+      // save new token in user object
+      user.underdogUserInfo.token = {
+        accessToken: tokenOrError.access_token,
+        refreshToken: tokenOrError.refresh_token,
+        tokenExpirationDate: new Date(
+          new Date().getTime() + tokenOrError.expires_in * 1000
+        ).toISOString(),
+      };
+      this.userService.setUser(user);
+      return tokenOrError.access_token;
+    }
+
+    // if we have token data, check if its expired
+    const tokenIsExpired =
+      new Date(user.underdogUserInfo.token.tokenExpirationDate) < new Date();
     if (tokenIsExpired) {
       console.info(`Token is expired for ${user.username}... refreshing`);
-      let token = await this.authWithRefreshToken(user);
+      let token = await this.authWithRefreshToken(
+        user.underdogUserInfo.token.refreshToken
+      );
+
       if (token instanceof Error) {
         console.error(`Error refreshing token for ${user.username}`, token);
 
         // as a last resort, try to auth with password
         console.info(`Attempting to auth with password for ${user.username}`);
         token = await this.authWithPassword(
-          user.username,
-          USERS_BY_UNDERDOG_USERNAME[user.username].underdogPassword
+          user.underdogUserInfo.username,
+          user.underdogUserInfo.password
         );
         if (token instanceof Error) {
           console.error(
@@ -172,22 +182,34 @@ export class UnderdogFantasyService {
           );
           return;
         }
+        console.info(
+          `Successfully authenticated with password for ${user.username}`
+        );
       }
+      console.info(`Successfully refreshed token for ${user.username}`);
 
+      user.underdogUserInfo.token = {
+        accessToken: token.access_token,
+        refreshToken: token.refresh_token,
+        tokenExpirationDate: new Date(
+          new Date().getTime() + token.expires_in * 1000
+        ).toISOString(),
+      };
+      this.userService.setUser(user);
       return token.access_token;
     }
 
-    return user.token;
+    return user.underdogUserInfo.token.accessToken;
   }
 
   private async authWithRefreshToken(
-    user: UnderdogFantasyUserInfo
+    refreshToken: string
   ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
     const body = {
       audience: 'https://api.underdogfantasy.com',
       client_id: 'cQvYz1T2BAFbix4dYR37dyD9O0Thf1s6',
       grant_type: 'refresh_token',
-      refresh_token: user.refreshToken,
+      refresh_token: refreshToken,
       scope: 'offline_access',
     };
 
@@ -207,17 +229,6 @@ export class UnderdogFantasyService {
       );
     }
 
-    const userInfo: UnderdogFantasyUserInfo = {
-      ...user,
-      token: tokenResponse.access_token,
-      refreshToken: tokenResponse.refresh_token,
-      tokenExpirationDate: new Date(
-        new Date().getTime() + tokenResponse.expires_in * 1000
-      ).toISOString(),
-    };
-
-    this.localStorage.setUnderdogFantasyUser(userInfo);
-    console.info(`Token refreshed for ${user.username}`);
     return tokenResponse;
   }
 
@@ -250,17 +261,6 @@ export class UnderdogFantasyService {
       );
     }
 
-    const userInfo: UnderdogFantasyUserInfo = {
-      username: username,
-      token: tokenResponse.access_token,
-      refreshToken: tokenResponse.refresh_token,
-      tokenExpirationDate: new Date(
-        new Date().getTime() + tokenResponse.expires_in * 1000
-      ).toISOString(),
-    };
-
-    this.localStorage.setUnderdogFantasyUser(userInfo);
-    console.info(`Authenticated with password for ${username}`);
     return tokenResponse;
   }
 }

@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Add User</h2>
+<mat-dialog-content>
+  <div [formGroup]="userForm">
+
+    <section>
+      <div style="display: flex; flex-direction: row; gap: 8px">
+        <mat-form-field>
+          <mat-label>First name</mat-label>
+          <input matInput placeholder="First Name" formControlName="firstName">
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Last name</mat-label>
+          <input matInput placeholder="Last Name" formControlName="lastName">
+        </mat-form-field>
+      </div>
+    
+      <mat-form-field style="width: 100%">
+        <mat-label>Username</mat-label>
+        <input matInput placeholder="Username" formControlName="username" [disabled]="editMode">
+        <mat-error *ngIf="userForm.controls.username.hasError('usernameTaken')">
+          Username is already taken
+        </mat-error>
+      </mat-form-field>
+    </section>
+  
+    <section>
+      <h3 style="color: black">Underdog Login Info:</h3>
+      <mat-form-field style="width: 100%">
+        <mat-label>Underdog username</mat-label>
+        <input matInput placeholder="Underdog username" formControlName="underdogUsername">
+      </mat-form-field>
+      <mat-form-field style="width: 100%">
+        <mat-label>Underdog password</mat-label>
+        <input matInput type="password" placeholder="Underdog password" formControlName="underdogPassword">
+      </mat-form-field>
+    </section>
+  </div>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-button (click)="onSaveUser()">Save</button>
+</mat-dialog-actions>
