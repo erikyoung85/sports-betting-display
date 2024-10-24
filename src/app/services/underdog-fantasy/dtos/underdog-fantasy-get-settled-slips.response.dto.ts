@@ -8,7 +8,7 @@ import { SeasonType } from '../enums/season-type.enum';
 import { SelectionResult } from '../enums/selection-result.enum';
 import { SportType } from '../enums/sport-type.enum';
 
-export interface UnderdogFantasyGetActiveSlipsResponseDto {
+export interface UnderdogFantasyGetSettledSlipsResponseDto {
   data: {
     appearances: {
       id: string;
@@ -57,7 +57,7 @@ export interface UnderdogFantasyGetActiveSlipsResponseDto {
         '4': '0.25';
         default: '0.0';
       };
-      payout: string | null;
+      payout: null;
       payout_option_id: string;
       payout_shifts: string[];
       pickem_pool_style_id: null;

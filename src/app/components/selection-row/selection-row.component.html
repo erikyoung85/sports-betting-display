@@ -1,0 +1,15 @@
+<mat-list-item 
+  [ngClass]="{
+    'selection-pending': selection.result === SelectionResult.Pending,
+    'selection-won': selection.result === SelectionResult.Won,
+    'selection-lost': selection.result === SelectionResult.Lost
+  }"
+  >
+  <img matListItemAvatar [src]="selection.player.imageUrl">
+  <span matListItemTitle style="font-weight: 700;">{{ selection.playerName }}</span>
+  <span matListItemLine>
+    <span style="font-weight: 700">{{ selection.choiceDisplay }}</span>
+    {{ selection.statTargetValue }} {{ selection.statDisplay }}
+  </span>
+  <mat-progress-bar mode="determinate" [value]="selection.progressValue" class="error"></mat-progress-bar>
+</mat-list-item>

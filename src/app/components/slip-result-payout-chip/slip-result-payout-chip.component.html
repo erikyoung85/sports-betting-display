@@ -1,0 +1,6 @@
+<div *ngIf="slip.result === SelectionResult.Won && slip.resultPayout" class="payout-chip won">
+    <span>Won {{ slip.resultPayout | money }}</span>
+</div>
+<div *ngIf="slip.result === SelectionResult.Lost" class="payout-chip lost">
+    <span>Lost {{ slip.fee | money }}</span>
+</div>

@@ -1,17 +1,42 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { keyBy } from 'lodash';
-import { BehaviorSubject, lastValueFrom, take } from 'rxjs';
+import {
+  BehaviorSubject,
+  combineLatest,
+  lastValueFrom,
+  map,
+  Observable,
+  take,
+} from 'rxjs';
+import { User } from '../../shared/models/user.model';
 import {
   LocalStorageService,
   UnderdogFantasyUserInfo,
 } from '../local-storage/local-storage.service';
 import { UnderdogFantasyAuthenticateResponseDto } from './dtos/underdog-fantasy-authenticate.response.dto';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from './dtos/underdog-fantasy-get-active-slips.response.dto';
-import { UnderdogFantasyActiveSlip } from './models/underdog-fantasy-active-slip.model';
+import { UnderdogFantasyGetSettledSlipsResponseDto } from './dtos/underdog-fantasy-get-settled-slips.response.dto';
+import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
 
-const USERS = [{ username: 'young.erik22@gmail.com', password: 'Packbrew00' }];
-const USERS_BY_USERNAME = keyBy(USERS, (user) => user.username);
+const USERS: User[] = [
+  {
+    firstName: 'Erik',
+    lastName: 'Young',
+    underdogUsername: 'young.erik22@gmail.com',
+    underdogPassword: 'Packbrew00',
+  },
+  {
+    firstName: 'Jed',
+    lastName: 'Whetstone',
+    underdogUsername: 'whetstonejed@yahoo.com',
+    underdogPassword: 'iR3allYH8ITee!',
+  },
+];
+const USERS_BY_UNDERDOG_USERNAME = keyBy(
+  USERS,
+  (user) => user.underdogUsername
+);
 
 @Injectable({
   providedIn: 'root',
@@ -22,20 +47,85 @@ export class UnderdogFantasyService {
   userDict$ = this.localStorage.underdogFantasyUserDict$;
 
   private _activeSlipsByUsername$: BehaviorSubject<{
-    [username: string]: UnderdogFantasyActiveSlip[] | undefined;
+    [username: string]: UnderdogFantasyEntrySlip[] | undefined;
   }> = new BehaviorSubject({});
   activeSlipsByUsername$ = this._activeSlipsByUsername$.asObservable();
+
+  private _settledSlipsByUsername$: BehaviorSubject<{
+    [username: string]: UnderdogFantasyEntrySlip[] | undefined;
+  }> = new BehaviorSubject({});
+  settledSlipsByUsername$ = this._settledSlipsByUsername$.asObservable();
+
+  slipToUsers$: Observable<{
+    [slipId: string]: User[];
+  }> = combineLatest([
+    this.activeSlipsByUsername$,
+    this.settledSlipsByUsername$,
+  ]).pipe(
+    map(([activeSlipsByUsername, settledSlipsByUsername]) => {
+      const slipToUsers: { [slipId: string]: User[] } = {};
+
+      Object.values(USERS_BY_UNDERDOG_USERNAME).forEach((user) => {
+        const slips = [
+          ...(activeSlipsByUsername[user.underdogUsername] ?? []),
+          ...(settledSlipsByUsername[user.underdogUsername] ?? []),
+        ];
+        slips.forEach((slip) => {
+          if (slipToUsers[slip.id] === undefined) {
+            slipToUsers[slip.id] = [];
+          }
+
+          slipToUsers[slip.id].push(user);
+        });
+      });
+
+      return slipToUsers;
+    })
+  );
 
   constructor(
     private readonly http: HttpClient,
     private readonly localStorage: LocalStorageService
   ) {}
 
+  getSettledSlips(): void {
+    this.userDict$.pipe(take(1)).subscribe(async (userDict) => {
+      await Promise.all(
+        Object.values(userDict).map(async (user) => {
+          const token = await this.getToken(user);
+          if (token === undefined) return;
+
+          const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+          });
+
+          const settledSlipsDto = await lastValueFrom(
+            this.http.get<UnderdogFantasyGetSettledSlipsResponseDto>(
+              `${this.baseUrl}/v6/user/settled_entry_slips`,
+              {
+                headers,
+              }
+            )
+          );
+
+          const settledSlips =
+            UnderdogFantasyEntrySlip.fromDto(settledSlipsDto);
+          this._settledSlipsByUsername$.next({
+            ...this._settledSlipsByUsername$.value,
+            [user.username]: settledSlips,
+          });
+        })
+      );
+    });
+  }
+
   getActiveSlips(): void {
     this.userDict$.pipe(take(1)).subscribe(async (userDict) => {
       await Promise.all(
         Object.values(userDict).map(async (user) => {
           const token = await this.getToken(user);
+          if (token === undefined) return;
+
           const headers = new HttpHeaders({
             Authorization: `Bearer ${token}`,
           });
@@ -49,7 +139,7 @@ export class UnderdogFantasyService {
             )
           );
 
-          const activeSlips = UnderdogFantasyActiveSlip.fromDto(activeSlipsDto);
+          const activeSlips = UnderdogFantasyEntrySlip.fromDto(activeSlipsDto);
           this._activeSlipsByUsername$.next({
             ...this._activeSlipsByUsername$.value,
             [user.username]: activeSlips,
@@ -73,7 +163,7 @@ export class UnderdogFantasyService {
         console.info(`Attempting to auth with password for ${user.username}`);
         token = await this.authWithPassword(
           user.username,
-          USERS_BY_USERNAME[user.username].password
+          USERS_BY_UNDERDOG_USERNAME[user.username].underdogPassword
         );
         if (token instanceof Error) {
           console.error(

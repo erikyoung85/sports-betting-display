@@ -1,0 +1,17 @@
+@use '@angular/material' as mat;
+
+$theme: mat.define-theme();
+
+.pending {
+    color: mat.get-theme-color($theme, primary);
+}
+
+.won {
+    color: green;
+
+}
+
+.lost {
+    color: mat.get-theme-color($theme, error);;
+
+}

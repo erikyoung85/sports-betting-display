@@ -1,21 +1,26 @@
 import { keyBy } from 'lodash';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from '../dtos/underdog-fantasy-get-active-slips.response.dto';
+import { UnderdogFantasyGetSettledSlipsResponseDto } from '../dtos/underdog-fantasy-get-settled-slips.response.dto';
+import { EntryStatus } from '../enums/entry-status.enum';
+import { SelectionResult } from '../enums/selection-result.enum';
 import {
   IUnderdogFantasySelection,
   UnderdogFantasySelection,
 } from './underdog-fantasy-selection.model';
 
-export interface IUnderdogFantasyActiveSlip {
+export interface IUnderdogFantasyEntrySlip {
   id: string;
   initialMaxPayoutMultiplier: string;
   currentMaxPayoutMultiplier: string;
   fee: string;
   freeEntry: boolean;
+  payout: string | null;
+  boostPayout: string | null;
   selections: IUnderdogFantasySelection[];
-  status: string;
+  status: EntryStatus;
 }
 
-export class UnderdogFantasyActiveSlip {
+export class UnderdogFantasyEntrySlip {
   private _selections: UnderdogFantasySelection[];
 
   get id(): string {
@@ -30,16 +35,34 @@ export class UnderdogFantasyActiveSlip {
     return Number(this.props.fee);
   }
 
+  get freeEntry(): boolean {
+    return this.props.freeEntry;
+  }
+
   get maxPayout(): number {
     return this.fee * this.payoutMultiplier;
   }
 
-  get status(): string {
-    return this.props.status;
+  get result(): SelectionResult {
+    if (this.status === 'settled') {
+      return (this.resultPayout ?? 0) > 0
+        ? SelectionResult.Won
+        : SelectionResult.Lost;
+    }
+
+    return SelectionResult.Pending;
   }
 
-  get freeEntry(): boolean {
-    return this.props.freeEntry;
+  get resultPayout(): number | undefined {
+    const payout = this.props.payout ? Number(this.props.payout) : undefined;
+    const boostPayout = this.props.boostPayout
+      ? Number(this.props.boostPayout)
+      : undefined;
+    return payout ? payout + (boostPayout ?? 0) : undefined;
+  }
+
+  get status(): EntryStatus {
+    return this.props.status;
   }
 
   get selections(): UnderdogFantasySelection[] {
@@ -50,15 +73,17 @@ export class UnderdogFantasyActiveSlip {
     return this.selections.length;
   }
 
-  constructor(private readonly props: IUnderdogFantasyActiveSlip) {
+  constructor(private readonly props: IUnderdogFantasyEntrySlip) {
     this._selections = props.selections.map(
       (selection) => new UnderdogFantasySelection(selection)
     );
   }
 
   static fromDto(
-    dto: UnderdogFantasyGetActiveSlipsResponseDto
-  ): UnderdogFantasyActiveSlip[] {
+    dto:
+      | UnderdogFantasyGetActiveSlipsResponseDto
+      | UnderdogFantasyGetSettledSlipsResponseDto
+  ): UnderdogFantasyEntrySlip[] {
     const playersDict = keyBy(dto.data.players, (player) => player.id);
     const appearanceDict = keyBy(
       dto.data.appearances,
@@ -75,12 +100,14 @@ export class UnderdogFantasyActiveSlip {
     const lineDict = keyBy(dto.data.over_under_lines, (line) => line.id);
 
     return dto.data.entry_slips.map((entrySlipDto) => {
-      return new UnderdogFantasyActiveSlip({
+      return new UnderdogFantasyEntrySlip({
         id: entrySlipDto.id,
         initialMaxPayoutMultiplier: entrySlipDto.initial_max_payout_multiplier,
         currentMaxPayoutMultiplier: entrySlipDto.current_max_payout_multiplier,
         fee: entrySlipDto.fee,
         freeEntry: entrySlipDto.free_entry,
+        payout: entrySlipDto.payout,
+        boostPayout: entrySlipDto.boost_payout,
         selections: entrySlipDto.selections.map((selectionDto) => {
           const option = optionsDict[selectionDto.option_id];
           const line = lineDict[option.over_under_line_id];

@@ -1,0 +1,5 @@
+<div *ngIf="(users$ | async) as users" style="display: inline-flex; flex-direction: row; gap: 4px;">
+    <div *ngFor="let user of users" class="user-chip won">
+        <span>{{ user.firstName }}</span>
+    </div>
+</div>

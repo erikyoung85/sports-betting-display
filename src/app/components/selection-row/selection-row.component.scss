@@ -1,0 +1,22 @@
+@use '@angular/material' as mat;
+
+$theme: mat.define-theme();
+
+
+.selection-won {
+    mat-progress-bar {
+        --mdc-linear-progress-active-indicator-color: green;
+    }
+}
+
+.selection-pending {
+    mat-progress-bar {
+        @include mat.progress-bar-color($theme, $color-variant: primary);
+    }
+}
+
+.selection-lost {
+    mat-progress-bar {
+        @include mat.progress-bar-color($theme, $color-variant: error);
+    }
+}

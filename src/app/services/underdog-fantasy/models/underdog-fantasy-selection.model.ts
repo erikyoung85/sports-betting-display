@@ -1,5 +1,5 @@
 import { EntryOptionType } from '../enums/entry-option-type.enum';
-import { EntryResult } from '../enums/entry-result.enum';
+import { SelectionResult } from '../enums/selection-result.enum';
 import { UnderdogFantasyPlayer } from './underdog-fantasy-player.model';
 
 export interface IUnderdogFantasySelection {
@@ -22,7 +22,7 @@ export interface IUnderdogFantasySelection {
   statDisplay: string;
   statTargetValue: string;
   statValue: string | null;
-  result: EntryResult;
+  result: SelectionResult;
 }
 
 export class UnderdogFantasySelection {
@@ -82,7 +82,7 @@ export class UnderdogFantasySelection {
     return (this.statValue / this.statTargetValue) * 100;
   }
 
-  get result(): string {
+  get result(): SelectionResult {
     return this.props.result;
   }
 

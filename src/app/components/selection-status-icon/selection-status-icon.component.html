@@ -1,0 +1,3 @@
+<mat-icon *ngIf="selection.result === SelectionResult.Pending" fontIcon="radio_button_checked" class="pending"></mat-icon>
+<mat-icon *ngIf="selection.result === SelectionResult.Won" fontIcon="check_circle" class="won"></mat-icon>
+<mat-icon *ngIf="selection.result === SelectionResult.Lost" fontIcon="cancel" class="lost"></mat-icon>

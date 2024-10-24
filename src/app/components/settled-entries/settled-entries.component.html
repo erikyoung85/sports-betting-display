@@ -1,0 +1,41 @@
+<mat-card>
+  <mat-card-header>
+    <mat-card-title>Settled bets</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+
+    <div *ngIf="(settledSlips$ | async)?.length === 0">No settled bets</div>
+
+    <div *ngIf="((settledSlips$ | async) ?? []) as slips" style="padding: .25rem; display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; align-items: flex-start; overflow-x: scroll">
+      <mat-card 
+        *ngFor="let slip of slips" 
+        [ngClass]="{ 
+          'slip-won': slip.result === SelectionResult.Won,
+          'slip-lost': slip.result === SelectionResult.Lost,
+        }"
+      >
+        <mat-card-header (click)="onToggleSelectionExpansion(slip)" style="cursor: pointer; text-wrap: nowrap;">
+          <mat-card-title style="font-size: 16px">{{ slip.fee | money }} to win {{ slip.maxPayout | money }}</mat-card-title>
+          <mat-card-subtitle style="display: flex; flex-direction: row; gap: 4px">
+            <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
+            <app-slip-result-payout-chip [slip]="slip"></app-slip-result-payout-chip>
+          </mat-card-subtitle>
+          <mat-card-subtitle style="display: flex; flex-direction: row;">
+            <app-selection-status-icon
+              *ngFor="let selection of slip.selections"
+              [selection]="selection"
+            ></app-selection-status-icon>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content *ngIf="slipExpansionState[slip.id]" style="padding: 0">
+  
+          <mat-list>
+            <app-selection-row *ngFor="let selection of slip.selections" [selection]="selection"></app-selection-row>
+          </mat-list>
+
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </mat-card-content>
+</mat-card>

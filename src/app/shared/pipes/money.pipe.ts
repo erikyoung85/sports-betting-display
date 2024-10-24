@@ -8,6 +8,10 @@ export class MoneyPipe implements PipeTransform {
 
   transform(value: string | number): string {
     const number = Number(value);
-    return `$${number.toFixed(2)}`;
+    const formattedNumber = `$${number.toFixed(2)}`;
+    if (formattedNumber.endsWith('.00')) {
+      return `$${number.toFixed(0)}`;
+    }
+    return formattedNumber;
   }
 }

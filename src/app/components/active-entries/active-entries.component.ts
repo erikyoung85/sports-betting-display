@@ -14,9 +14,9 @@ export class ActiveEntriesComponent implements OnInit {
   ) {}
 
   activeSlips$ = this.underdogFantasyService.activeSlipsByUsername$.pipe(
-    map((activeSlipsByUsername) => {
-      return activeSlipsByUsername['young.erik22@gmail.com'];
-    })
+    map((activeSlipsByUsername) =>
+      Object.values(activeSlipsByUsername).flatMap((slips) => slips ?? [])
+    )
   );
 
   ngOnInit(): void {
