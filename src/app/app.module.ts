@@ -20,11 +20,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ActiveEntriesComponent } from './components/active-entries/active-entries.component';
+import { AddUserToSlipComponent } from './components/add-user-to-slip/add-user-to-slip.component';
 import { SelectionRowComponent } from './components/selection-row/selection-row.component';
 import { SelectionStatusIconComponent } from './components/selection-status-icon/selection-status-icon.component';
 import { SettledEntriesComponent } from './components/settled-entries/settled-entries.component';
@@ -49,6 +51,7 @@ import { SharedModule } from './shared/shared.module';
     UserManagerComponent,
     UserCardComponent,
     UserFormComponent,
+    AddUserToSlipComponent,
   ],
   imports: [
     BrowserModule,
@@ -68,6 +71,7 @@ import { SharedModule } from './shared/shared.module';
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
+    MatMenuModule,
   ],
   providers: [
     provideClientHydration(),

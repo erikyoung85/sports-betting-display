@@ -73,24 +73,23 @@ export class UserFormComponent {
   }
 
   onSaveUser(): void {
-    console.log('User to save:', this.userForm.value);
-
     if (!this.userForm.valid) {
       return;
     }
 
     const user: User = {
+      ...(this.user ?? {}),
       username: this.userForm.value.username ?? '',
       firstName: this.userForm.value.firstName ?? '',
       lastName: this.userForm.value.lastName ?? '',
       underdogUserInfo: {
+        ...(this.user?.underdogUserInfo ?? {}),
         username: this.userForm.value.underdogUsername ?? '',
         password: this.userForm.value.underdogPassword ?? '',
       },
     };
 
-    console.log('User to save:', user);
-    // this.userService.setUser(user);
+    this.userService.setUser(user);
     this.dialogRef.close(this.userForm.value);
   }
 

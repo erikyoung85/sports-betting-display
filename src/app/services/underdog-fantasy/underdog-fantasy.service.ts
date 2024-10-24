@@ -8,12 +8,15 @@ import {
   Observable,
   take,
 } from 'rxjs';
+import { LocalStorageService } from '../local-storage/local-storage.service';
 import { User } from '../user/models/user.model';
 import { UserService } from '../user/user.service';
 import { UnderdogFantasyAuthenticateResponseDto } from './dtos/underdog-fantasy-authenticate.response.dto';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from './dtos/underdog-fantasy-get-active-slips.response.dto';
 import { UnderdogFantasyGetSettledSlipsResponseDto } from './dtos/underdog-fantasy-get-settled-slips.response.dto';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
+
+type SlipToAdditionalUsernames = { [slipId: string]: string[] };
 
 @Injectable({
   providedIn: 'root',
@@ -31,15 +34,23 @@ export class UnderdogFantasyService {
   }> = new BehaviorSubject({});
   settledSlipsByUsername$ = this._settledSlipsByUsername$.asObservable();
 
-  slipToUsers$: Observable<{
-    [slipId: string]: User[];
+  private _slipToAdditionalUsers$: BehaviorSubject<SlipToAdditionalUsernames> =
+    new BehaviorSubject(
+      this.localStorageService.getItem<SlipToAdditionalUsernames>(
+        'slip_to_additional_users'
+      ) ?? {}
+    );
+  slipToAdditionalUsers$ = this._slipToAdditionalUsers$.asObservable();
+
+  slipToOriginalUser$: Observable<{
+    [slipId: string]: User;
   }> = combineLatest([
     this.userService.users$,
     this.activeSlipsByUsername$,
     this.settledSlipsByUsername$,
   ]).pipe(
     map(([users, activeSlipsByUsername, settledSlipsByUsername]) => {
-      const slipToUsers: { [slipId: string]: User[] } = {};
+      const slipToOriginalUser: { [slipId: string]: User } = {};
 
       users.forEach((user) => {
         const slips = [
@@ -47,21 +58,64 @@ export class UnderdogFantasyService {
           ...(settledSlipsByUsername[user.username] ?? []),
         ];
         slips.forEach((slip) => {
-          if (slipToUsers[slip.id] === undefined) {
-            slipToUsers[slip.id] = [];
-          }
-
-          slipToUsers[slip.id].push(user);
+          slipToOriginalUser[slip.id] = user;
         });
       });
 
-      return slipToUsers;
+      return slipToOriginalUser;
     })
+  );
+
+  slipToUsers$: Observable<{
+    [slipId: string]: User[];
+  }> = combineLatest([
+    this.userService.userDict$,
+    this.activeSlipsByUsername$,
+    this.settledSlipsByUsername$,
+    this.slipToAdditionalUsers$,
+  ]).pipe(
+    map(
+      ([
+        userDict,
+        activeSlipsByUsername,
+        settledSlipsByUsername,
+        slipToAdditionalUsers,
+      ]) => {
+        const slipToUsers: { [slipId: string]: User[] } = {};
+
+        Object.values(userDict).forEach((user) => {
+          const slips = [
+            ...(activeSlipsByUsername[user.username] ?? []),
+            ...(settledSlipsByUsername[user.username] ?? []),
+          ];
+          slips.forEach((slip) => {
+            if (slipToUsers[slip.id] === undefined) {
+              slipToUsers[slip.id] = [];
+            }
+
+            const usernamesForSlip = Array.from(
+              new Set([
+                user.username,
+                ...(slipToAdditionalUsers[slip.id] ?? []),
+              ])
+            );
+            const usersForSlip = usernamesForSlip.map(
+              (username) => userDict[username]
+            );
+
+            slipToUsers[slip.id].push(...usersForSlip);
+          });
+        });
+
+        return slipToUsers;
+      }
+    )
   );
 
   constructor(
     private readonly http: HttpClient,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly localStorageService: LocalStorageService
   ) {}
 
   getSettledSlips(): void {
@@ -123,6 +177,48 @@ export class UnderdogFantasyService {
         })
       );
     });
+  }
+
+  addUserToSlip(slipId: string, username: string): void {
+    const currentUsernamesForSlip =
+      this._slipToAdditionalUsers$.value[slipId] ?? [];
+    const newUsernamesForSlip = Array.from(
+      new Set([...currentUsernamesForSlip, username])
+    );
+
+    // create new dict
+    const slipToAdditionalUsers: SlipToAdditionalUsernames = {
+      ...this._slipToAdditionalUsers$.value,
+      [slipId]: newUsernamesForSlip,
+    };
+
+    // save new value
+    this.localStorageService.setItem(
+      'slip_to_additional_users',
+      slipToAdditionalUsers
+    );
+    this._slipToAdditionalUsers$.next(slipToAdditionalUsers);
+  }
+
+  removeUserFromSlip(slipId: string, username: string): void {
+    const currentUsernamesForSlip = new Set(
+      this._slipToAdditionalUsers$.value[slipId] ?? []
+    );
+    currentUsernamesForSlip.delete(username);
+    const newUsernamesForSlip = Array.from(currentUsernamesForSlip);
+
+    // create new dict
+    const slipToAdditionalUsers: SlipToAdditionalUsernames = {
+      ...this._slipToAdditionalUsers$.value,
+      [slipId]: newUsernamesForSlip,
+    };
+
+    // save new value
+    this.localStorageService.setItem(
+      'slip_to_additional_users',
+      slipToAdditionalUsers
+    );
+    this._slipToAdditionalUsers$.next(slipToAdditionalUsers);
   }
 
   private async getUnderdogToken(user: User): Promise<string | undefined> {

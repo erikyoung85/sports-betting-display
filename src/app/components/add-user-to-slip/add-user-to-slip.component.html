@@ -1,0 +1,45 @@
+<h2 mat-dialog-title>Add Users to Slip</h2>
+<mat-dialog-content style="display: flex; flex-direction: row; gap: 1rem;">
+
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title-group style="text-wrap: nowrap;">
+        <mat-card-title style="font-size: 16px">{{ slip.fee | money }} to win {{ slip.maxPayout | money }}</mat-card-title>
+        <mat-card-subtitle style="display: flex; flex-direction: row; gap: 4px">
+          <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
+          <app-slip-result-payout-chip [slip]="slip"></app-slip-result-payout-chip>
+        </mat-card-subtitle>
+        <mat-card-subtitle style="display: flex; flex-direction: row;">
+          <app-selection-status-icon
+            *ngFor="let selection of slip.selections"
+            [selection]="selection"
+          ></app-selection-status-icon>
+        </mat-card-subtitle>
+      </mat-card-title-group>
+    </mat-card-header>
+    <mat-card-content style="padding: 0">
+      <mat-list>
+        <app-selection-row *ngFor="let selection of slip.selections" [selection]="selection"></app-selection-row>
+      </mat-list>
+    </mat-card-content>
+  </mat-card>
+
+  <ng-content *ngIf="(allUsers$ | async) as users">
+    <ng-content *ngIf="(selectedUsernames$ | async) as selectedUsernames">
+      <mat-chip-listbox multiple class="mat-mdc-chip-set-stacked">
+        <mat-chip-option 
+          *ngFor="let user of users"
+          [selected]="selectedUsernames.has(user.username)"
+          [disabled]="(originalUsername$ | async) === user.username"
+          (selectionChange)="onUserSelectionChange(user, $event.selected)"
+        >
+          {{ user.firstName }} {{ user.lastName }}
+        </mat-chip-option>
+      </mat-chip-listbox>
+    </ng-content>
+  </ng-content>
+
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onClose()">Close</button>
+</mat-dialog-actions>

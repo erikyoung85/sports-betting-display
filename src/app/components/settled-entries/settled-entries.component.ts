@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { map, tap } from 'rxjs';
 import { SelectionResult } from '../../services/underdog-fantasy/enums/selection-result.enum';
 import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
+import { AddUserToSlipComponent } from '../add-user-to-slip/add-user-to-slip.component';
 
 @Component({
   selector: 'app-settled-entries',
@@ -12,7 +14,8 @@ import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog
 })
 export class SettledEntriesComponent implements OnInit {
   constructor(
-    private readonly underdogFantasyService: UnderdogFantasyService
+    private readonly underdogFantasyService: UnderdogFantasyService,
+    private readonly dialog: MatDialog
   ) {}
 
   slipExpansionState: { [slipId: string]: boolean } = {};
@@ -31,6 +34,10 @@ export class SettledEntriesComponent implements OnInit {
 
   onToggleSelectionExpansion(slip: UnderdogFantasyEntrySlip): void {
     this.slipExpansionState[slip.id] = !this.slipExpansionState[slip.id];
+  }
+
+  onMoreClicked(slip: UnderdogFantasyEntrySlip): void {
+    this.dialog.open(AddUserToSlipComponent, { data: slip });
   }
 
   ngOnInit(): void {
