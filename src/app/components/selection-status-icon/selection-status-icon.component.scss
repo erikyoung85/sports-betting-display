@@ -15,3 +15,7 @@ $theme: mat.define-theme();
     color: mat.get-theme-color($theme, error);;
 
 }
+
+.pushed{
+    color: orange
+}
