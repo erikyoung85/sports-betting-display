@@ -18,6 +18,7 @@ export interface IUnderdogFantasyEntrySlip {
   boostPayout: string | null;
   selections: IUnderdogFantasySelection[];
   status: EntryStatus;
+  createdAt: Date;
 }
 
 export class UnderdogFantasyEntrySlip {
@@ -71,6 +72,10 @@ export class UnderdogFantasyEntrySlip {
 
   get selectionCount(): number {
     return this.selections.length;
+  }
+
+  get createdAt(): Date {
+    return this.props.createdAt;
   }
 
   constructor(private readonly props: IUnderdogFantasyEntrySlip) {
@@ -153,6 +158,7 @@ export class UnderdogFantasyEntrySlip {
           };
         }),
         status: entrySlipDto.status,
+        createdAt: new Date(entrySlipDto.selections[0].created_at),
       });
     });
   }

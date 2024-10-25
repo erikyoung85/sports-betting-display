@@ -21,7 +21,9 @@ export class SettledEntriesComponent {
   slipExpansionState: { [slipId: string]: boolean } = {};
   settledSlips$ = this.underdogFantasyService.settledSlipsByUsername$.pipe(
     map((settledSlipsByUsername) =>
-      Object.values(settledSlipsByUsername).flatMap((slips) => slips ?? [])
+      Object.values(settledSlipsByUsername)
+        .flatMap((slips) => slips ?? [])
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     ),
     tap((slips) => {
       (slips ?? []).forEach((slip) => {

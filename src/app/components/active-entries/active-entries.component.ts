@@ -19,7 +19,9 @@ export class ActiveEntriesComponent {
 
   activeSlips$ = this.underdogFantasyService.activeSlipsByUsername$.pipe(
     map((activeSlipsByUsername) =>
-      Object.values(activeSlipsByUsername).flatMap((slips) => slips ?? [])
+      Object.values(activeSlipsByUsername)
+        .flatMap((slips) => slips ?? [])
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     )
   );
 
