@@ -7,7 +7,7 @@
     <div *ngIf="(userStats$ | async) as userStats">
       <b>Bets won:</b> {{ userStats.numBetsWon }}<br/>
       <b>Bets lost:</b> {{ userStats.numBetsLost }}<br/>
-      <b>Total balance:</b> 
+      <b>Total profit:</b> 
         <span [style.color]="(userStats.totalProfit) >= 0 ? 'green' : 'red'">
           {{ (userStats.totalProfit) | money}}
         </span><br/>
