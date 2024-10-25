@@ -1,4 +1,8 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  HttpHeaders,
+} from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
   BehaviorSubject,
@@ -6,7 +10,6 @@ import {
   lastValueFrom,
   map,
   Observable,
-  take,
 } from 'rxjs';
 import { LocalStorageService } from '../local-storage/local-storage.service';
 import { User } from '../user/models/user.model';
@@ -14,6 +17,7 @@ import { UserService } from '../user/user.service';
 import { UnderdogFantasyAuthenticateResponseDto } from './dtos/underdog-fantasy-authenticate.response.dto';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from './dtos/underdog-fantasy-get-active-slips.response.dto';
 import { UnderdogFantasyGetSettledSlipsResponseDto } from './dtos/underdog-fantasy-get-settled-slips.response.dto';
+import { EntryStatus } from './enums/entry-status.enum';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
 
 type SlipToAdditionalUsernames = { [slipId: string]: string[] };
@@ -116,10 +120,13 @@ export class UnderdogFantasyService {
     private readonly http: HttpClient,
     private readonly userService: UserService,
     private readonly localStorageService: LocalStorageService
-  ) {}
+  ) {
+    this.getActiveSlips();
+    this.getSettledSlips();
+  }
 
-  getSettledSlips(): void {
-    this.userService.userDict$.pipe(take(1)).subscribe(async (userDict) => {
+  private getSettledSlips(): void {
+    this.userService.userDict$.subscribe(async (userDict) => {
       await Promise.all(
         Object.values(userDict).map(async (user) => {
           const token = await this.getUnderdogToken(user);
@@ -136,10 +143,19 @@ export class UnderdogFantasyService {
                 headers,
               }
             )
-          );
+          ).catch((err: HttpErrorResponse) => err);
 
-          const settledSlips =
-            UnderdogFantasyEntrySlip.fromDto(settledSlipsDto);
+          if (settledSlipsDto instanceof HttpErrorResponse) {
+            console.error(
+              `Error getting settled slips for ${user.username}`,
+              settledSlipsDto
+            );
+            return;
+          }
+
+          const settledSlips = UnderdogFantasyEntrySlip.fromDto(
+            settledSlipsDto
+          ).filter((slip) => slip.status !== EntryStatus.Cancelled);
           this._settledSlipsByUsername$.next({
             ...this._settledSlipsByUsername$.value,
             [user.username]: settledSlips,
@@ -149,8 +165,8 @@ export class UnderdogFantasyService {
     });
   }
 
-  getActiveSlips(): void {
-    this.userService.userDict$.pipe(take(1)).subscribe(async (userDict) => {
+  private getActiveSlips(): void {
+    this.userService.userDict$.subscribe(async (userDict) => {
       await Promise.all(
         Object.values(userDict).map(async (user) => {
           const token = await this.getUnderdogToken(user);
@@ -167,9 +183,18 @@ export class UnderdogFantasyService {
                 headers,
               }
             )
-          );
+          ).catch((err: HttpErrorResponse) => err);
+          if (activeSlipsDto instanceof HttpErrorResponse) {
+            console.error(
+              `Error getting active slips for ${user.username}`,
+              activeSlipsDto
+            );
+            return;
+          }
 
-          const activeSlips = UnderdogFantasyEntrySlip.fromDto(activeSlipsDto);
+          const activeSlips = UnderdogFantasyEntrySlip.fromDto(
+            activeSlipsDto
+          ).filter((slip) => slip.status !== EntryStatus.Cancelled);
           this._activeSlipsByUsername$.next({
             ...this._activeSlipsByUsername$.value,
             [user.username]: activeSlips,
@@ -229,28 +254,7 @@ export class UnderdogFantasyService {
 
     // if we have no token data, try to auth with password
     if (user.underdogUserInfo.token === undefined) {
-      const tokenOrError = await this.authWithPassword(
-        user.underdogUserInfo.username,
-        user.underdogUserInfo.password
-      );
-      if (tokenOrError instanceof Error) {
-        console.error(
-          `Error authenticating with password for ${user.username}`,
-          tokenOrError
-        );
-        return undefined;
-      }
-
-      // save new token in user object
-      user.underdogUserInfo.token = {
-        accessToken: tokenOrError.access_token,
-        refreshToken: tokenOrError.refresh_token,
-        tokenExpirationDate: new Date(
-          new Date().getTime() + tokenOrError.expires_in * 1000
-        ).toISOString(),
-      };
-      this.userService.setUser(user);
-      return tokenOrError.access_token;
+      return undefined;
     }
 
     // if we have token data, check if its expired
@@ -258,87 +262,61 @@ export class UnderdogFantasyService {
       new Date(user.underdogUserInfo.token.tokenExpirationDate) < new Date();
     if (tokenIsExpired) {
       console.info(`Token is expired for ${user.username}... refreshing`);
-      let token = await this.authWithRefreshToken(
-        user.underdogUserInfo.token.refreshToken
-      );
 
+      const token = await this.refreshTokenForUser(user);
       if (token instanceof Error) {
         console.error(`Error refreshing token for ${user.username}`, token);
-
-        // as a last resort, try to auth with password
-        console.info(`Attempting to auth with password for ${user.username}`);
-        token = await this.authWithPassword(
-          user.underdogUserInfo.username,
-          user.underdogUserInfo.password
-        );
-        if (token instanceof Error) {
-          console.error(
-            `Error authenticating with password for ${user.username}`,
-            token
-          );
-          return;
-        }
-        console.info(
-          `Successfully authenticated with password for ${user.username}`
-        );
+        return undefined;
       }
-      console.info(`Successfully refreshed token for ${user.username}`);
 
-      user.underdogUserInfo.token = {
-        accessToken: token.access_token,
-        refreshToken: token.refresh_token,
-        tokenExpirationDate: new Date(
-          new Date().getTime() + token.expires_in * 1000
-        ).toISOString(),
-      };
-      this.userService.setUser(user);
+      console.info(`Successfully refreshed token for ${user.username}`);
       return token.access_token;
     }
 
     return user.underdogUserInfo.token.accessToken;
   }
 
-  private async authWithRefreshToken(
-    refreshToken: string
+  private async refreshTokenForUser(
+    user: User
   ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
+    if (user.underdogUserInfo?.token?.refreshToken === undefined) {
+      return new Error('No refresh token found');
+    }
+
     const body = {
-      audience: 'https://api.underdogfantasy.com',
-      client_id: 'cQvYz1T2BAFbix4dYR37dyD9O0Thf1s6',
-      grant_type: 'refresh_token',
-      refresh_token: refreshToken,
-      scope: 'offline_access',
+      refresh_token: user.underdogUserInfo.token.refreshToken,
     };
 
     const tokenResponse = await lastValueFrom(
-      this.http.post<
-        | UnderdogFantasyAuthenticateResponseDto
-        | { error: string; error_description: string }
-      >('/api/underdog/auth', body)
-    ).catch((err: Error) => err);
+      this.http.post<UnderdogFantasyAuthenticateResponseDto>(
+        '/api/underdog/refreshToken',
+        body
+      )
+    ).catch((err: HttpErrorResponse) => err);
 
-    if (tokenResponse instanceof Error) {
-      return tokenResponse;
+    if (tokenResponse instanceof HttpErrorResponse) {
+      return new Error(tokenResponse.message);
     }
-    if ('error' in tokenResponse) {
-      return new Error(
-        tokenResponse.error + ' | ' + tokenResponse.error_description
-      );
-    }
+
+    user.underdogUserInfo.token = {
+      accessToken: tokenResponse.access_token,
+      refreshToken: tokenResponse.refresh_token,
+      tokenExpirationDate: new Date(
+        new Date().getTime() + tokenResponse.expires_in * 1000
+      ).toISOString(),
+    };
+    this.userService.setUser(user);
 
     return tokenResponse;
   }
 
-  private async authWithPassword(
+  async authWithPassword(
     username: string,
     password: string
   ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
     const body = {
-      audience: 'https://api.underdogfantasy.com',
-      client_id: 'cQvYz1T2BAFbix4dYR37dyD9O0Thf1s6',
-      grant_type: 'password',
       username: username,
       password: password,
-      scope: 'offline_access',
     };
 
     const tokenResponse = await lastValueFrom(
@@ -346,10 +324,10 @@ export class UnderdogFantasyService {
         | UnderdogFantasyAuthenticateResponseDto
         | { error: string; error_description: string }
       >('/api/underdog/auth', body)
-    ).catch((err: Error) => err);
+    ).catch((err: HttpErrorResponse) => err);
 
-    if (tokenResponse instanceof Error) {
-      return tokenResponse;
+    if (tokenResponse instanceof HttpErrorResponse) {
+      return new Error(tokenResponse.message);
     }
     if ('error' in tokenResponse) {
       return new Error(

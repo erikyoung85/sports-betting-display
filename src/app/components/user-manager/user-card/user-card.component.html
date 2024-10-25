@@ -4,8 +4,13 @@
   </mat-card-header>
 
   <mat-card-content style="font-size: 12px">
-    <div *ngIf="user.underdogUserInfo">
-      <b>Underdog:</b> {{user.underdogUserInfo.username}}<br/>
+    <div *ngIf="(userStats$ | async) as userStats">
+      <b>Bets won:</b> {{ userStats.numBetsWon }}<br/>
+      <b>Bets lost:</b> {{ userStats.numBetsLost }}<br/>
+      <b>Total balance:</b> 
+        <span [style.color]="(userStats.moneyWon - userStats.moneyLost) > 0 ? 'green' : 'red'">
+          {{ (userStats.moneyWon - userStats.moneyLost) | money}}
+        </span><br/>
     </div>
   </mat-card-content>
 </mat-card>

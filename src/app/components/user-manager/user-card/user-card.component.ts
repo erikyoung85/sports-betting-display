@@ -1,4 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import { map } from 'rxjs';
+import { UserStatsService } from '../../../services/user-stats/user-stats.service';
 import { User } from '../../../services/user/models/user.model';
 
 @Component({
@@ -8,7 +10,11 @@ import { User } from '../../../services/user/models/user.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCardComponent {
-  constructor() {}
+  constructor(private readonly userStatsService: UserStatsService) {}
 
   @Input() user!: User;
+
+  userStats$ = this.userStatsService.statsByUser$.pipe(
+    map((statsByUser) => statsByUser[this.user.username])
+  );
 }

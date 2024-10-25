@@ -6,20 +6,29 @@
 
     <div *ngIf="(activeSlips$ | async)?.length === 0">No active bets placed</div>
 
-    <div *ngIf="((activeSlips$ | async) ?? []) as slips" style="padding: .25rem; display: flex; flex-direction: column; gap: 8px; justify-content: flex-start; align-items: center;">
+    <div *ngIf="((activeSlips$ | async) ?? []) as slips" style="padding: .25rem; display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; align-items: flex-start; overflow-x: scroll">
       <mat-card *ngFor="let slip of slips" style="width: 400px;">
-        <mat-card-header>
-          <mat-card-title style="display: flex; flex-direction: row; gap: 8px; align-items: flex-start;">
-            <span style="text-wrap: nowrap">{{ slip.selectionCount }} Picks to {{ slip.payoutMultiplier }}x Money</span>
-            <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
-          </mat-card-title>
-          <mat-card-subtitle>{{ slip.fee | money }} down for {{ slip.maxPayout | money }} payout</mat-card-subtitle>
-          <mat-card-subtitle style="display: flex; flex-direction: row;">
-            <app-selection-status-icon
-              *ngFor="let selection of slip.selections"
-              [selection]="selection"
-            ></app-selection-status-icon>
-          </mat-card-subtitle>
+        <mat-card-header style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;">
+          <mat-card-title-group>
+            <mat-card-title style="display: flex; flex-direction: row; gap: 8px; align-items: flex-start;">
+              <span style="text-wrap: nowrap">{{ slip.selectionCount }} Picks to {{ slip.payoutMultiplier }}x Money</span>
+              <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
+            </mat-card-title>
+            <mat-card-subtitle>{{ slip.fee | money }} down for {{ slip.maxPayout | money }} payout</mat-card-subtitle>
+            <mat-card-subtitle style="display: flex; flex-direction: row;">
+              <app-selection-status-icon
+                *ngFor="let selection of slip.selections"
+                [selection]="selection"
+              ></app-selection-status-icon>
+            </mat-card-subtitle>
+          </mat-card-title-group>
+
+          <button mat-icon-button [matMenuTriggerFor]="moreMenu">
+            <mat-icon fontIcon="more_horiz"></mat-icon>
+          </button>
+          <mat-menu #moreMenu="matMenu">
+            <button mat-menu-item (click)="onMoreClicked(slip)">Add to group</button>
+          </mat-menu>
         </mat-card-header>
         <mat-card-content>
   

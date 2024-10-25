@@ -33,11 +33,16 @@
         <mat-label>Underdog password</mat-label>
         <input matInput type="password" placeholder="Underdog password" formControlName="underdogPassword">
       </mat-form-field>
+      <div>
+        <button mat-raised-button (click)="onLoginToUnderdog()">Login to Underdog</button>
+        <mat-error *ngIf="underdogLoginText">{{ underdogLoginText }}</mat-error>
+      </div>
     </section>
   </div>
 
 </mat-dialog-content>
 <mat-dialog-actions align="end">
+  <button mat-flat-button *ngIf="editMode" (click)="onDeleteUser()" style="color: red">Delete User</button>
   <button mat-button (click)="onCancel()">Cancel</button>
   <button mat-button (click)="onSaveUser()">Save</button>
 </mat-dialog-actions>

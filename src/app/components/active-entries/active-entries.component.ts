@@ -1,6 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { map } from 'rxjs';
+import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
+import { AddUserToSlipComponent } from '../add-user-to-slip/add-user-to-slip.component';
 
 @Component({
   selector: 'app-active-entries',
@@ -8,9 +11,10 @@ import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog
   styleUrls: ['./active-entries.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ActiveEntriesComponent implements OnInit {
+export class ActiveEntriesComponent {
   constructor(
-    private readonly underdogFantasyService: UnderdogFantasyService
+    private readonly underdogFantasyService: UnderdogFantasyService,
+    private readonly dialog: MatDialog
   ) {}
 
   activeSlips$ = this.underdogFantasyService.activeSlipsByUsername$.pipe(
@@ -19,7 +23,7 @@ export class ActiveEntriesComponent implements OnInit {
     )
   );
 
-  ngOnInit(): void {
-    this.underdogFantasyService.getActiveSlips();
+  onMoreClicked(slip: UnderdogFantasyEntrySlip): void {
+    this.dialog.open(AddUserToSlipComponent, { data: slip });
   }
 }

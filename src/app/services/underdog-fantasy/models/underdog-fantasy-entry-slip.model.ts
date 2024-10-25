@@ -44,7 +44,7 @@ export class UnderdogFantasyEntrySlip {
   }
 
   get result(): SelectionResult {
-    if (this.status === 'settled') {
+    if (this.status === EntryStatus.Settled) {
       return (this.resultPayout ?? 0) > 0
         ? SelectionResult.Won
         : SelectionResult.Lost;

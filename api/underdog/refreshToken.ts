@@ -1,8 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 interface requestDto {
-  username: string;
-  password: string;
+  refreshToken: string;
 }
 
 export default async function handler(
@@ -18,9 +17,8 @@ export default async function handler(
     const body = {
       audience: 'https://api.underdogfantasy.com',
       client_id: 'cQvYz1T2BAFbix4dYR37dyD9O0Thf1s6',
-      grant_type: 'password',
-      username: requestBody.username,
-      password: requestBody.password,
+      grant_type: 'refresh_token',
+      refresh_token: requestBody.refreshToken,
       scope: 'offline_access',
     };
 

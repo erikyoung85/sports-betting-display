@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { map, tap } from 'rxjs';
 import { SelectionResult } from '../../services/underdog-fantasy/enums/selection-result.enum';
@@ -12,7 +12,7 @@ import { AddUserToSlipComponent } from '../add-user-to-slip/add-user-to-slip.com
   styleUrls: ['./settled-entries.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SettledEntriesComponent implements OnInit {
+export class SettledEntriesComponent {
   constructor(
     private readonly underdogFantasyService: UnderdogFantasyService,
     private readonly dialog: MatDialog
@@ -38,9 +38,5 @@ export class SettledEntriesComponent implements OnInit {
 
   onMoreClicked(slip: UnderdogFantasyEntrySlip): void {
     this.dialog.open(AddUserToSlipComponent, { data: slip });
-  }
-
-  ngOnInit(): void {
-    this.underdogFantasyService.getSettledSlips();
   }
 }
