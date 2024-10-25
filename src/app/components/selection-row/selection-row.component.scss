@@ -20,3 +20,10 @@ $theme: mat.define-theme();
         @include mat.progress-bar-color($theme, $color-variant: error);
     }
 }
+
+.selection-pushed {
+    mat-progress-bar {
+        --mdc-linear-progress-active-indicator-color: rgb(255, 165, 0);
+        --mdc-linear-progress-track-color: rgb(255, 165, 0, .3)
+    }
+}

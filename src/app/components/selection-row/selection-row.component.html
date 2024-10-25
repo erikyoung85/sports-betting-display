@@ -2,7 +2,8 @@
   [ngClass]="{
     'selection-pending': selection.result === SelectionResult.Pending,
     'selection-won': selection.result === SelectionResult.Won,
-    'selection-lost': selection.result === SelectionResult.Lost
+    'selection-lost': selection.result === SelectionResult.Lost,
+    'selection-pushed': selection.result === SelectionResult.Pushed
   }"
   >
   <img matListItemAvatar [src]="selection.player.imageUrl">
