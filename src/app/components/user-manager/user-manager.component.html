@@ -1,11 +1,14 @@
 <mat-card>
-  <mat-card-header>
+  <mat-card-header style="display: flex; flex-direction: row; gap: 8px; justify-content: space-between;">
     <mat-card-title style="display: flex; flex-direction: row; gap: 8px;">
       Users
       <button mat-raised-button (click)="onAddUser()">
         Add User
       </button>
     </mat-card-title>
+    <span *ngIf="(secondsUpdatedAgo$ | async) as secondsUpdatedAgo" style="font-size: 10px; font-weight: 300">
+      data updated {{ secondsUpdatedAgo }} seconds ago
+    </span>
   </mat-card-header>
 
   <mat-card-content 

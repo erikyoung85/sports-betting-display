@@ -7,9 +7,11 @@ import { Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   combineLatest,
+  interval,
   lastValueFrom,
   map,
   Observable,
+  withLatestFrom,
 } from 'rxjs';
 import { User } from '../user/models/user.model';
 import { UserService } from '../user/user.service';
@@ -29,6 +31,9 @@ type SlipToAdditionalUsernames = { [slipId: string]: string[] };
 })
 export class UnderdogFantasyService {
   private readonly baseUrl = 'https://api.underdogfantasy.com';
+
+  _dataLastUpdated$: BehaviorSubject<Date> = new BehaviorSubject(new Date());
+  dataLastUpdated$ = this._dataLastUpdated$.asObservable();
 
   private _activeSlipsByUsername$: BehaviorSubject<{
     [username: string]: UnderdogFantasyEntrySlip[] | undefined;
@@ -118,8 +123,25 @@ export class UnderdogFantasyService {
     private readonly http: HttpClient,
     private readonly userService: UserService
   ) {
-    this.userService.userDict$.subscribe((userDict) => {
-      Object.values(userDict).forEach(async (user) => {
+    // fire every 30 seconds or when the user dict changes
+    interval(30000)
+      .pipe(withLatestFrom(this.userService.users$))
+      .subscribe(([_, users]) => {
+        this.getAllSlipsForUser(users);
+      });
+
+    // fire whenever the user data changes
+    this.userService.users$.subscribe((users) => {
+      this.getAllSlipsForUser(users);
+    });
+
+    // get group slips data
+    this.getSlipToAdditionalUsers();
+  }
+
+  private async getAllSlipsForUser(users: User[]): Promise<void> {
+    Promise.all(
+      users.map(async (user) => {
         // get settled slips for user
         const settledSlips = await this.getSettledSlips(user);
         this._settledSlipsByUsername$.next({
@@ -133,11 +155,8 @@ export class UnderdogFantasyService {
           ...this._activeSlipsByUsername$.value,
           [user.username]: activeSlips,
         });
-      });
-    });
-
-    // get group slips data
-    this.getSlipToAdditionalUsers();
+      })
+    ).then(() => this._dataLastUpdated$.next(new Date()));
   }
 
   private async getSettledSlips(

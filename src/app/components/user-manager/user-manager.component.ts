@@ -1,5 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { interval, map, withLatestFrom } from 'rxjs';
+import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
 import { User } from '../../services/user/models/user.model';
 import { UserService } from '../../services/user/user.service';
 import { UserFormComponent } from './user-form/user-form.component';
@@ -13,10 +15,19 @@ import { UserFormComponent } from './user-form/user-form.component';
 export class UserManagerComponent {
   constructor(
     private readonly dialog: MatDialog,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly underdogFantasyService: UnderdogFantasyService
   ) {}
 
   users$ = this.userService.users$;
+
+  dataLastUpdatedOn$ = this.underdogFantasyService.dataLastUpdated$;
+  secondsUpdatedAgo$ = interval(1000).pipe(
+    withLatestFrom(this.underdogFantasyService.dataLastUpdated$),
+    map(([_, dataUpdatedOn]) =>
+      Math.floor((new Date().getTime() - dataUpdatedOn.getTime()) / 1000)
+    )
+  );
 
   onAddUser(): void {
     this.dialog.open(UserFormComponent);
