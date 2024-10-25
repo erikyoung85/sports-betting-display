@@ -24,19 +24,7 @@
     </section>
   
     <section>
-      <h3 style="color: black">Underdog Login Info:</h3>
-      <mat-form-field style="width: 100%">
-        <mat-label>Underdog username</mat-label>
-        <input matInput placeholder="Underdog username" formControlName="underdogUsername">
-      </mat-form-field>
-      <mat-form-field style="width: 100%">
-        <mat-label>Underdog password</mat-label>
-        <input matInput type="password" placeholder="Underdog password" formControlName="underdogPassword">
-      </mat-form-field>
-      <div>
-        <button mat-raised-button (click)="onLoginToUnderdog()">Login to Underdog</button>
-        <mat-error *ngIf="underdogLoginText">{{ underdogLoginText }}</mat-error>
-      </div>
+      <app-underdog-login-form [loginInfo]="user?.underdogUserInfo" (onLoginInfoChange)="onUnderdogLoginInfoChange($event)"></app-underdog-login-form>
     </section>
   </div>
 

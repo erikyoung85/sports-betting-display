@@ -23,7 +23,15 @@ export async function getAllUsers(): Promise<UserEntity[] | Error> {
   try {
     const client = await sql.connect();
     const queryResult = await client.query<UserEntity>(`
-            SELECT *
+            SELECT 
+              id,
+              username,
+              first_name,
+              last_name,
+              underdog_user_username,
+              underdog_user_access_token,
+              underdog_user_refresh_token,
+              underdog_user_token_expiration_date
             FROM "user"
         `);
 

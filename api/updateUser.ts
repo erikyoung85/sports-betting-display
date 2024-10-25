@@ -8,7 +8,6 @@ export interface UpdateUserDto {
   first_name: string;
   last_name: string;
   underdog_user_username: string | undefined;
-  underdog_user_password: string | undefined;
   underdog_user_access_token: string | undefined;
   underdog_user_refresh_token: string | undefined;
   underdog_user_token_expiration_date: string | undefined;
@@ -57,11 +56,6 @@ export async function updateUser(
         underdog_user_username = ${
           userDto.underdog_user_username
             ? `'${userDto.underdog_user_username}'`
-            : null
-        },
-        underdog_user_password = ${
-          userDto.underdog_user_password
-            ? `'${userDto.underdog_user_password}'`
             : null
         },
         underdog_user_access_token = ${

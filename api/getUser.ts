@@ -7,7 +7,6 @@ export interface UserEntity {
   first_name: string;
   last_name: string;
   underdog_user_username: string | null;
-  underdog_user_password: string | null;
   underdog_user_access_token: string | null;
   underdog_user_refresh_token: string | null;
   underdog_user_token_expiration_date: string | null;
@@ -38,7 +37,15 @@ export async function getUser(username: string): Promise<UserEntity | Error> {
   try {
     const client = await sql.connect();
     const queryResult = await client.query<UserEntity>(`
-            SELECT *
+            SELECT 
+                id,
+                username,
+                first_name,
+                last_name,
+                underdog_user_username,
+                underdog_user_access_token,
+                underdog_user_refresh_token,
+                underdog_user_token_expiration_date
             FROM "user"
             WHERE "user".username = '${username}';
         `);

@@ -1,0 +1,31 @@
+<div *ngIf="{
+  editMode: (editMode$ | async),
+  underdogUserInfo: (underdogUserInfo$ | async),
+  underdogLoginStatusText: (underdogLoginStatusText$ | async),
+ } as config">
+
+  <div *ngIf="!config.editMode && config.underdogUserInfo">
+    <div class="user-card">
+      <mat-icon svgIcon="https://underdogfantasy.com/favicon.png"></mat-icon>
+      <span>Underdog username: {{ config.underdogUserInfo.username }}</span>
+    </div>
+  </div>
+
+  <div *ngIf="config.editMode">
+    <form [formGroup]="loginForm">
+      <h3 style="color: black">Login to underdog:</h3>
+      <mat-form-field style="width: 100%">
+        <mat-label>Underdog username</mat-label>
+        <input matInput placeholder="Underdog username" formControlName="username">
+      </mat-form-field>
+      <mat-form-field style="width: 100%">
+        <mat-label>Underdog password</mat-label>
+        <input matInput type="password" placeholder="Underdog password" formControlName="password">
+      </mat-form-field>
+      <div>
+        <button mat-raised-button (click)="onLoginToUnderdog()">Login to Underdog</button>
+        <mat-error *ngIf="config.underdogLoginStatusText">{{ config.underdogLoginStatusText }}</mat-error>
+      </div>
+    </form>
+  </div>
+</div>

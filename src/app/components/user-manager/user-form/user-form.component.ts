@@ -9,17 +9,16 @@ import {
 } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { map, Observable, of, take } from 'rxjs';
-import { UnderdogFantasyAuthenticateResponseDto } from '../../../services/underdog-fantasy/dtos/underdog-fantasy-authenticate.response.dto';
-import { UnderdogFantasyService } from '../../../services/underdog-fantasy/underdog-fantasy.service';
-import { User } from '../../../services/user/models/user.model';
+import {
+  UnderdogUserInfo,
+  User,
+} from '../../../services/user/models/user.model';
 import { UserService } from '../../../services/user/user.service';
 
 interface UserForm {
   username: FormControl<string | null>;
   firstName: FormControl<string | null>;
   lastName: FormControl<string | null>;
-  underdogUsername: FormControl<string | null>;
-  underdogPassword: FormControl<string | null>;
 }
 
 @Component({
@@ -32,14 +31,10 @@ export class UserFormComponent {
   constructor(
     public dialogRef: MatDialogRef<UserFormComponent>,
     private readonly userService: UserService,
-    private readonly underdogService: UnderdogFantasyService,
     @Inject(MAT_DIALOG_DATA) public user?: User
   ) {}
 
   editMode = !!this.user;
-
-  underdogLoginText: string | undefined;
-  underdogToken: UnderdogFantasyAuthenticateResponseDto | undefined;
 
   userForm = new FormGroup<UserForm>({
     firstName: new FormControl(
@@ -52,14 +47,9 @@ export class UserFormComponent {
       Validators.required,
       this.usernameValidator()
     ),
-    underdogUsername: new FormControl(
-      this.user?.underdogUserInfo?.username ?? null,
-      [Validators.email]
-    ),
-    underdogPassword: new FormControl(
-      this.user?.underdogUserInfo?.password ?? null
-    ),
   });
+
+  underdogUserInfo: UnderdogUserInfo | undefined = this.user?.underdogUserInfo;
 
   usernameValidator(): AsyncValidatorFn {
     return (control: AbstractControl): Observable<ValidationErrors | null> => {
@@ -80,6 +70,10 @@ export class UserFormComponent {
     };
   }
 
+  onUnderdogLoginInfoChange(loginInfo: UnderdogUserInfo) {
+    this.underdogUserInfo = loginInfo;
+  }
+
   onSaveUser(): void {
     if (!this.userForm.valid) {
       return;
@@ -93,43 +87,23 @@ export class UserFormComponent {
           : this.userForm.value.username ?? '',
       firstName: this.userForm.value.firstName ?? '',
       lastName: this.userForm.value.lastName ?? '',
-      underdogUserInfo: {
-        ...(this.user?.underdogUserInfo ?? {}),
-        username: this.userForm.value.underdogUsername ?? '',
-        password: this.userForm.value.underdogPassword ?? '',
-        token: this.underdogToken
-          ? {
-              accessToken: this.underdogToken.access_token,
-              refreshToken: this.underdogToken.refresh_token,
-              tokenExpirationDate: new Date(
-                new Date().getTime() + this.underdogToken.expires_in * 1000
-              ).toISOString(),
-            }
-          : undefined,
-      },
+      underdogUserInfo: this.underdogUserInfo
+        ? {
+            username: this.underdogUserInfo.username ?? '',
+            token: this.underdogUserInfo.token
+              ? {
+                  accessToken: this.underdogUserInfo.token.accessToken,
+                  refreshToken: this.underdogUserInfo.token.refreshToken,
+                  tokenExpirationDate:
+                    this.underdogUserInfo.token.tokenExpirationDate,
+                }
+              : undefined,
+          }
+        : undefined,
     };
 
     this.userService.setUser(user);
     this.dialogRef.close(this.userForm.value);
-  }
-
-  async onLoginToUnderdog(): Promise<void> {
-    const underdogUsername = this.userForm.value.underdogUsername;
-    const underdogPassword = this.userForm.value.underdogPassword;
-
-    if (underdogUsername && underdogPassword) {
-      const authResponse = await this.underdogService.authWithPassword(
-        underdogUsername,
-        underdogPassword
-      );
-      if (authResponse instanceof Error) {
-        this.underdogToken = undefined;
-        this.underdogLoginText = authResponse.message;
-      } else {
-        this.underdogToken = authResponse;
-        this.underdogLoginText = 'Login successful!';
-      }
-    }
   }
 
   onCancel(): void {

@@ -33,6 +33,7 @@ import { SettledEntriesComponent } from './components/settled-entries/settled-en
 import { SlipResultPayoutChipComponent } from './components/slip-result-payout-chip/slip-result-payout-chip.component';
 import { SlipUserChipsComponent } from './components/slip-user-chips/slip-user-chips.component';
 import { UserCardComponent } from './components/user-manager/user-card/user-card.component';
+import { UnderdogLoginFormComponent } from './components/user-manager/user-form/underdog-login-form/underdog-login-form.component';
 import { UserFormComponent } from './components/user-manager/user-form/user-form.component';
 import { UserManagerComponent } from './components/user-manager/user-manager.component';
 import { LocalStorageService } from './services/local-storage/local-storage.service';
@@ -52,6 +53,7 @@ import { SharedModule } from './shared/shared.module';
     UserCardComponent,
     UserFormComponent,
     AddUserToSlipComponent,
+    UnderdogLoginFormComponent,
   ],
   imports: [
     BrowserModule,
