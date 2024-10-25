@@ -39,11 +39,7 @@ export class UnderdogFantasyService {
   settledSlipsByUsername$ = this._settledSlipsByUsername$.asObservable();
 
   private _slipToAdditionalUsers$: BehaviorSubject<SlipToAdditionalUsernames> =
-    new BehaviorSubject(
-      this.localStorageService.getItem<SlipToAdditionalUsernames>(
-        'slip_to_additional_users'
-      ) ?? {}
-    );
+    new BehaviorSubject({});
   slipToAdditionalUsers$ = this._slipToAdditionalUsers$.asObservable();
 
   slipToOriginalUser$: Observable<{
@@ -123,6 +119,7 @@ export class UnderdogFantasyService {
   ) {
     this.getActiveSlips();
     this.getSettledSlips();
+    this.getSlipToAdditionalUsers();
   }
 
   private getSettledSlips(): void {
@@ -204,46 +201,59 @@ export class UnderdogFantasyService {
     });
   }
 
-  addUserToSlip(slipId: string, username: string): void {
-    const currentUsernamesForSlip =
-      this._slipToAdditionalUsers$.value[slipId] ?? [];
-    const newUsernamesForSlip = Array.from(
-      new Set([...currentUsernamesForSlip, username])
-    );
+  private async getSlipToAdditionalUsers(): Promise<void> {
+    const slipIdToUsernames = await lastValueFrom(
+      this.http.get<SlipToAdditionalUsernames>(
+        `api/underdog/getUsernamesBySlip`
+      )
+    ).catch((err: HttpErrorResponse) => err);
+    if (slipIdToUsernames instanceof HttpErrorResponse) {
+      console.error(
+        `Error getting additional users for slips`,
+        slipIdToUsernames
+      );
+      return;
+    }
 
-    // create new dict
-    const slipToAdditionalUsers: SlipToAdditionalUsernames = {
-      ...this._slipToAdditionalUsers$.value,
-      [slipId]: newUsernamesForSlip,
-    };
-
-    // save new value
-    this.localStorageService.setItem(
-      'slip_to_additional_users',
-      slipToAdditionalUsers
-    );
-    this._slipToAdditionalUsers$.next(slipToAdditionalUsers);
+    this._slipToAdditionalUsers$.next(slipIdToUsernames);
   }
 
-  removeUserFromSlip(slipId: string, username: string): void {
-    const currentUsernamesForSlip = new Set(
-      this._slipToAdditionalUsers$.value[slipId] ?? []
-    );
-    currentUsernamesForSlip.delete(username);
-    const newUsernamesForSlip = Array.from(currentUsernamesForSlip);
-
-    // create new dict
-    const slipToAdditionalUsers: SlipToAdditionalUsernames = {
-      ...this._slipToAdditionalUsers$.value,
-      [slipId]: newUsernamesForSlip,
-    };
+  async addUserToSlip(slipId: string, username: string): Promise<void> {
+    const slipIdToUsernames = await lastValueFrom(
+      this.http.post<SlipToAdditionalUsernames>(`api/underdog/addUserToSlip`, {
+        slip_id: slipId,
+        username: username,
+      })
+    ).catch((err: HttpErrorResponse) => err);
+    if (slipIdToUsernames instanceof HttpErrorResponse) {
+      console.error(`Error adding additional user to slip`, slipIdToUsernames);
+      return;
+    }
 
     // save new value
-    this.localStorageService.setItem(
-      'slip_to_additional_users',
-      slipToAdditionalUsers
-    );
-    this._slipToAdditionalUsers$.next(slipToAdditionalUsers);
+    this._slipToAdditionalUsers$.next(slipIdToUsernames);
+  }
+
+  async removeUserFromSlip(slipId: string, username: string): Promise<void> {
+    const slipIdToUsernames = await lastValueFrom(
+      this.http.post<SlipToAdditionalUsernames>(
+        `api/underdog/removeUserFromSlip`,
+        {
+          slip_id: slipId,
+          username: username,
+        }
+      )
+    ).catch((err: HttpErrorResponse) => err);
+    if (slipIdToUsernames instanceof HttpErrorResponse) {
+      console.error(
+        `Error removing additional user from slip`,
+        slipIdToUsernames
+      );
+      return;
+    }
+
+    // save new value
+    this._slipToAdditionalUsers$.next(slipIdToUsernames);
   }
 
   private async getUnderdogToken(user: User): Promise<string | undefined> {

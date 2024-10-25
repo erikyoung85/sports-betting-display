@@ -31,7 +31,11 @@ export class AddUserToSlipComponent {
     })
   );
 
-  onUserSelectionChange(user: User, selected: boolean): void {
+  disabled = false;
+
+  async onUserSelectionChange(user: User, selected: boolean): Promise<void> {
+    this.disabled = true;
+
     if (selected) {
       this.underdogFantasyService.addUserToSlip(this.slip.id, user.username);
     } else {
@@ -40,6 +44,8 @@ export class AddUserToSlipComponent {
         user.username
       );
     }
+
+    this.disabled = false;
   }
 
   onClose(): void {

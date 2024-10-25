@@ -30,7 +30,7 @@
         <mat-chip-option 
           *ngFor="let user of users"
           [selected]="selectedUsernames.has(user.username)"
-          [disabled]="(originalUsername$ | async) === user.username"
+          [disabled]="(originalUsername$ | async) === user.username || disabled"
           (selectionChange)="onUserSelectionChange(user, $event.selected)"
         >
           {{ user.firstName }} {{ user.lastName }}
@@ -41,5 +41,5 @@
 
 </mat-dialog-content>
 <mat-dialog-actions align="end">
-  <button mat-button (click)="onClose()">Close</button>
+  <button mat-button (click)="onClose()" [disabled]="disabled">Close</button>
 </mat-dialog-actions>
