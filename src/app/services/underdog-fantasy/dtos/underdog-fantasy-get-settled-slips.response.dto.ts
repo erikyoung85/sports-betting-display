@@ -7,6 +7,7 @@ import { OwnerType } from '../enums/owner-type.enum';
 import { SeasonType } from '../enums/season-type.enum';
 import { SelectionResult } from '../enums/selection-result.enum';
 import { SportType } from '../enums/sport-type.enum';
+import { UnderdogFantasyGetActiveSlipsResponseDto } from './underdog-fantasy-get-active-slips.response.dto';
 
 export interface UnderdogFantasyGetSettledSlipsResponseDto {
   data: {
@@ -195,7 +196,43 @@ export interface UnderdogFantasyGetSettledSlipsResponseDto {
   meta: {
     count: number;
     items: number;
-    next: null;
+    next: number | null;
     page: number;
+  };
+}
+
+export function mergeUnderdogFantasySlipDtos<
+  T extends
+    | UnderdogFantasyGetSettledSlipsResponseDto
+    | UnderdogFantasyGetActiveSlipsResponseDto
+>(dtos: T[]): T {
+  const appearances = dtos.flatMap((dto) => dto.data.appearances);
+  const entrySlips = dtos.flatMap((dto) => dto.data.entry_slips);
+  const games = dtos.flatMap((dto) => dto.data.games);
+  const overUnderLines = dtos.flatMap((dto) => dto.data.over_under_lines);
+  const overUnderOptions = dtos.flatMap((dto) => dto.data.over_under_options);
+  const overUnders = dtos.flatMap((dto) => dto.data.over_unders);
+  const players = dtos.flatMap((dto) => dto.data.players);
+
+  return <T>{
+    data: {
+      appearances: appearances,
+      entry_slips: entrySlips,
+      games: games,
+      over_under_lines: overUnderLines,
+      over_under_options: overUnderOptions,
+      over_unders: overUnders,
+      players: players,
+      rival_lines: [],
+      rival_options: [],
+      rivals: [],
+      solo_games: [],
+    },
+    meta: {
+      count: entrySlips.length,
+      items: entrySlips.length,
+      next: null,
+      page: 1,
+    },
   };
 }

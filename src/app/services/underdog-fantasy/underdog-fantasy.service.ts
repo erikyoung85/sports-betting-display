@@ -11,12 +11,14 @@ import {
   map,
   Observable,
 } from 'rxjs';
-import { LocalStorageService } from '../local-storage/local-storage.service';
 import { User } from '../user/models/user.model';
 import { UserService } from '../user/user.service';
 import { UnderdogFantasyAuthenticateResponseDto } from './dtos/underdog-fantasy-authenticate.response.dto';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from './dtos/underdog-fantasy-get-active-slips.response.dto';
-import { UnderdogFantasyGetSettledSlipsResponseDto } from './dtos/underdog-fantasy-get-settled-slips.response.dto';
+import {
+  mergeUnderdogFantasySlipDtos,
+  UnderdogFantasyGetSettledSlipsResponseDto,
+} from './dtos/underdog-fantasy-get-settled-slips.response.dto';
 import { EntryStatus } from './enums/entry-status.enum';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
 
@@ -114,91 +116,109 @@ export class UnderdogFantasyService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly userService: UserService,
-    private readonly localStorageService: LocalStorageService
+    private readonly userService: UserService
   ) {
-    this.getActiveSlips();
-    this.getSettledSlips();
+    this.userService.userDict$.subscribe((userDict) => {
+      Object.values(userDict).forEach(async (user) => {
+        // get settled slips for user
+        const settledSlips = await this.getSettledSlips(user);
+        this._settledSlipsByUsername$.next({
+          ...this._settledSlipsByUsername$.value,
+          [user.username]: settledSlips,
+        });
+
+        // get active slips for user
+        const activeSlips = await this.getActiveSlips(user);
+        this._activeSlipsByUsername$.next({
+          ...this._activeSlipsByUsername$.value,
+          [user.username]: activeSlips,
+        });
+      });
+    });
+
+    // get group slips data
     this.getSlipToAdditionalUsers();
   }
 
-  private getSettledSlips(): void {
-    this.userService.userDict$.subscribe(async (userDict) => {
-      await Promise.all(
-        Object.values(userDict).map(async (user) => {
-          const token = await this.getUnderdogToken(user);
-          if (token === undefined) return;
+  private async getSettledSlips(
+    user: User
+  ): Promise<UnderdogFantasyEntrySlip[] | undefined> {
+    const token = await this.getUnderdogToken(user);
+    if (token === undefined) return;
 
-          const headers = new HttpHeaders({
-            Authorization: `Bearer ${token}`,
-          });
-
-          const settledSlipsDto = await lastValueFrom(
-            this.http.get<UnderdogFantasyGetSettledSlipsResponseDto>(
-              `${this.baseUrl}/v6/user/settled_entry_slips`,
-              {
-                headers,
-              }
-            )
-          ).catch((err: HttpErrorResponse) => err);
-
-          if (settledSlipsDto instanceof HttpErrorResponse) {
-            console.error(
-              `Error getting settled slips for ${user.username}`,
-              settledSlipsDto
-            );
-            return;
-          }
-
-          const settledSlips = UnderdogFantasyEntrySlip.fromDto(
-            settledSlipsDto
-          ).filter((slip) => slip.status !== EntryStatus.Cancelled);
-          this._settledSlipsByUsername$.next({
-            ...this._settledSlipsByUsername$.value,
-            [user.username]: settledSlips,
-          });
-        })
-      );
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
     });
+
+    const allDtos: UnderdogFantasyGetSettledSlipsResponseDto[] = [];
+    let nextPage: number | null = 1;
+
+    while (nextPage !== null) {
+      const settledSlipsDto:
+        | UnderdogFantasyGetSettledSlipsResponseDto
+        | HttpErrorResponse = await lastValueFrom(
+        this.http.get<UnderdogFantasyGetSettledSlipsResponseDto>(
+          `${this.baseUrl}/v6/user/settled_entry_slips?page=${nextPage}`,
+          {
+            headers,
+          }
+        )
+      ).catch((err: HttpErrorResponse) => err);
+
+      if (settledSlipsDto instanceof HttpErrorResponse) {
+        console.error(
+          `Error getting settled slips for ${user.username}`,
+          settledSlipsDto
+        );
+        return;
+      }
+
+      allDtos.push(settledSlipsDto);
+      nextPage = settledSlipsDto.meta.next;
+    }
+
+    const mergedDto = mergeUnderdogFantasySlipDtos(allDtos);
+    const settledSlips = UnderdogFantasyEntrySlip.fromDto(mergedDto).filter(
+      (slip) => slip.status !== EntryStatus.Cancelled
+    );
+    return settledSlips;
   }
 
-  private getActiveSlips(): void {
-    this.userService.userDict$.subscribe(async (userDict) => {
-      await Promise.all(
-        Object.values(userDict).map(async (user) => {
-          const token = await this.getUnderdogToken(user);
-          if (token === undefined) return;
+  private async getActiveSlips(
+    user: User
+  ): Promise<UnderdogFantasyEntrySlip[] | undefined> {
+    const token = await this.getUnderdogToken(user);
+    if (token === undefined) return;
 
-          const headers = new HttpHeaders({
-            Authorization: `Bearer ${token}`,
-          });
-
-          const activeSlipsDto = await lastValueFrom(
-            this.http.get<UnderdogFantasyGetActiveSlipsResponseDto>(
-              `${this.baseUrl}/v5/user/active_entry_slips`,
-              {
-                headers,
-              }
-            )
-          ).catch((err: HttpErrorResponse) => err);
-          if (activeSlipsDto instanceof HttpErrorResponse) {
-            console.error(
-              `Error getting active slips for ${user.username}`,
-              activeSlipsDto
-            );
-            return;
-          }
-
-          const activeSlips = UnderdogFantasyEntrySlip.fromDto(
-            activeSlipsDto
-          ).filter((slip) => slip.status !== EntryStatus.Cancelled);
-          this._activeSlipsByUsername$.next({
-            ...this._activeSlipsByUsername$.value,
-            [user.username]: activeSlips,
-          });
-        })
-      );
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
     });
+
+    const activeSlipsDto = await lastValueFrom(
+      this.http.get<UnderdogFantasyGetActiveSlipsResponseDto>(
+        `${this.baseUrl}/v5/user/active_entry_slips`,
+        {
+          headers,
+        }
+      )
+    ).catch((err: HttpErrorResponse) => err);
+    if (activeSlipsDto instanceof HttpErrorResponse) {
+      console.error(
+        `Error getting active slips for ${user.username}`,
+        activeSlipsDto
+      );
+      return;
+    }
+
+    const activeSlips = UnderdogFantasyEntrySlip.fromDto(activeSlipsDto).filter(
+      (slip) => slip.status !== EntryStatus.Cancelled
+    );
+    this._activeSlipsByUsername$.next({
+      ...this._activeSlipsByUsername$.value,
+      [user.username]: activeSlips,
+    });
+
+    return activeSlips;
   }
 
   private async getSlipToAdditionalUsers(): Promise<void> {
