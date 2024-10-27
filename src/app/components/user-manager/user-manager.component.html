@@ -5,6 +5,8 @@
       <button mat-raised-button (click)="onAddUser()">
         Add User
       </button>
+
+      <mat-slide-toggle (toggleChange)="onElliotModeToggleChange()">Elliot mode</mat-slide-toggle>
     </mat-card-title>
     <span *ngIf="(secondsUpdatedAgo$ | async) as secondsUpdatedAgo" style="font-size: 10px; font-weight: 300">
       data updated {{ secondsUpdatedAgo }} seconds ago
@@ -16,7 +18,7 @@
     style="display: flex; flex-direction: row; gap: 8px; overflow-x: scroll; padding: 1rem;"
   >
 
-    <app-user-card *ngFor="let user of users" [user]="user" (click)="onCardClick(user)" style="cursor: pointer"></app-user-card>
+    <app-user-card *ngFor="let user of users" [user]="user" (click)="onCardClick(user)" style="cursor: pointer" [elliotMode]="elliotMode"></app-user-card>
 
   </mat-card-content>
 </mat-card>

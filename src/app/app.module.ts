@@ -22,6 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -74,6 +75,7 @@ import { SharedModule } from './shared/shared.module';
     FormsModule,
     ReactiveFormsModule,
     MatMenuModule,
+    MatSlideToggleModule,
   ],
   providers: [
     provideClientHydration(),

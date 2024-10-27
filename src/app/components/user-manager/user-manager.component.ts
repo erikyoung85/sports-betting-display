@@ -29,11 +29,17 @@ export class UserManagerComponent {
     )
   );
 
+  elliotMode = false;
+
   onAddUser(): void {
     this.dialog.open(UserFormComponent);
   }
 
   onCardClick(user: User) {
     this.dialog.open(UserFormComponent, { data: user });
+  }
+
+  onElliotModeToggleChange(): void {
+    this.elliotMode = !this.elliotMode;
   }
 }

@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { map } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
+import { UserStats } from '../../../services/user-stats/models/user-stats.model';
 import { UserStatsService } from '../../../services/user-stats/user-stats.service';
 import { User } from '../../../services/user/models/user.model';
 
@@ -9,12 +16,34 @@ import { User } from '../../../services/user/models/user.model';
   styleUrls: ['./user-card.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class UserCardComponent {
+export class UserCardComponent implements OnChanges {
   constructor(private readonly userStatsService: UserStatsService) {}
 
   @Input() user!: User;
+  @Input() elliotMode: boolean = false;
 
-  userStats$ = this.userStatsService.statsByUser$.pipe(
-    map((statsByUser) => statsByUser[this.user.username])
+  private _elliotMode$ = new BehaviorSubject<boolean>(this.elliotMode);
+
+  userStats$ = combineLatest([
+    this.userStatsService.statsByUser$,
+    this._elliotMode$,
+  ]).pipe(
+    map(([statsByUser, elliotMode]) => {
+      if (elliotMode && this.user.username === 'elliotaustin') {
+        return <UserStats>{
+          ...statsByUser[this.user.username],
+          numBetsWon: 100,
+          numBetsLost: 0,
+          totalProfit: 1000,
+        };
+      }
+      return statsByUser[this.user.username];
+    })
   );
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['elliotMode']) {
+      this._elliotMode$.next(this.elliotMode);
+    }
+  }
 }
