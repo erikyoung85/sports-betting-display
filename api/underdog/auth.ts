@@ -34,19 +34,16 @@ export default async function handler(
       'https://login.underdogsports.com/oauth/token',
       requestOptions
     )
-      .then((res) => res.json() as any)
+      .then((res) => res)
       .catch((err: Error) => err);
 
+    console.log('auth tokenResponse:', tokenResponse);
+
     if (tokenResponse instanceof Error) {
-      return response.status(500).json(tokenResponse);
-    }
-    if ('error' in tokenResponse) {
-      return response
-        .status(500)
-        .json(`${tokenResponse.error} | ${tokenResponse.error_description}`);
+      return response.status(500).send(tokenResponse);
     }
 
-    return response.status(200).json(tokenResponse);
+    return response.status(200).send(tokenResponse);
   } catch (error) {
     return response.status(500).json(error);
   }

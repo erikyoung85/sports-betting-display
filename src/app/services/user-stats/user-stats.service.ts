@@ -31,6 +31,7 @@ export class UserStatsService {
             (statsByUser[username] = {
               username: username,
               numBetsPlaced: 0,
+              numBetsPending: 0,
               numBetsWon: 0,
               numBetsLost: 0,
               moneyBet: 0,
@@ -66,6 +67,9 @@ export class UserStatsService {
               if (caluclatedValues.betLost) {
                 statsByUser[username].numBetsLost++;
               }
+              if (caluclatedValues.betPending) {
+                statsByUser[username].numBetsPending++;
+              }
               statsByUser[username].moneyBet += caluclatedValues.moneyBet;
               statsByUser[username].moneyWon += caluclatedValues.moneyWon;
               statsByUser[username].moneyLost += caluclatedValues.moneyLost;
@@ -85,11 +89,13 @@ export class UserStatsService {
   ): {
     betWon: boolean;
     betLost: boolean;
+    betPending: boolean;
     moneyBet: number;
     moneyWon: number;
     moneyLost: number;
     totalProfit: number;
   } {
+    const betPending = slip.status === EntryStatus.Active;
     const betSettled = slip.status === EntryStatus.Settled;
     const betWon = slip.result === SelectionResult.Won;
     const betLost = slip.result === SelectionResult.Lost;
@@ -104,6 +110,7 @@ export class UserStatsService {
     }
 
     return {
+      betPending,
       betWon,
       betLost,
       moneyBet: moneyBet / numUsersInGroup,

@@ -1,6 +1,7 @@
 export interface UserStats {
   username: string;
   numBetsPlaced: number;
+  numBetsPending: number;
   numBetsWon: number;
   numBetsLost: number;
   moneyBet: number;

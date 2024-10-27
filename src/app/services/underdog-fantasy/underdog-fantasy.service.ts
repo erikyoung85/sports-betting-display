@@ -140,6 +140,8 @@ export class UnderdogFantasyService {
   }
 
   private async getAllSlipsForUser(users: User[]): Promise<void> {
+    if (users.length === 0) return;
+
     Promise.all(
       users.map(async (user) => {
         // get settled slips for user
@@ -182,7 +184,11 @@ export class UnderdogFantasyService {
             headers,
           }
         )
-      ).catch((err: HttpErrorResponse) => err);
+      ).catch((err: HttpErrorResponse) => {
+        // force refresh token and wait for retry
+        this.getUnderdogToken(user, true);
+        return err;
+      });
 
       if (settledSlipsDto instanceof HttpErrorResponse) {
         console.error(
@@ -220,7 +226,11 @@ export class UnderdogFantasyService {
           headers,
         }
       )
-    ).catch((err: HttpErrorResponse) => err);
+    ).catch((err: HttpErrorResponse) => {
+      // force refresh token and wait for retry
+      this.getUnderdogToken(user, true);
+      return err;
+    });
     if (activeSlipsDto instanceof HttpErrorResponse) {
       console.error(
         `Error getting active slips for ${user.username}`,
@@ -295,7 +305,10 @@ export class UnderdogFantasyService {
     this._slipToAdditionalUsers$.next(slipIdToUsernames);
   }
 
-  private async getUnderdogToken(user: User): Promise<string | undefined> {
+  private async getUnderdogToken(
+    user: User,
+    forceRefresh: boolean = false
+  ): Promise<string | undefined> {
     // if we have no login info for underdog theres nothing we can do
     if (user.underdogUserInfo === undefined) {
       return;
@@ -307,10 +320,14 @@ export class UnderdogFantasyService {
     }
 
     // if we have token data, check if its expired
-    const tokenIsExpired =
-      new Date(user.underdogUserInfo.token.tokenExpirationDate) < new Date();
-    if (tokenIsExpired) {
-      console.info(`Token is expired for ${user.username}... refreshing`);
+    const tokenExpirationDate = new Date(
+      user.underdogUserInfo.token.tokenExpirationDate
+    );
+    const currentDate = new Date();
+    const tokenIsExpired = tokenExpirationDate < currentDate;
+    if (forceRefresh || tokenIsExpired) {
+      if (tokenIsExpired)
+        console.info(`Token is expired for ${user.username}... refreshing`);
 
       const token = await this.refreshTokenForUser(user);
       if (token instanceof Error) {
@@ -328,62 +345,66 @@ export class UnderdogFantasyService {
   private async refreshTokenForUser(
     user: User
   ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
-    if (user.underdogUserInfo?.token?.refreshToken === undefined) {
-      return new Error('No refresh token found');
-    }
+    return new Error('Refresh token not working');
 
-    const body = {
-      refresh_token: user.underdogUserInfo.token.refreshToken,
-    };
+    // if (user.underdogUserInfo?.token?.refreshToken === undefined) {
+    //   return new Error('No refresh token found');
+    // }
 
-    const tokenResponse = await lastValueFrom(
-      this.http.post<UnderdogFantasyAuthenticateResponseDto>(
-        '/api/underdog/refreshToken',
-        body
-      )
-    ).catch((err: HttpErrorResponse) => err);
+    // const body = {
+    //   refresh_token: user.underdogUserInfo.token.refreshToken,
+    // };
 
-    if (tokenResponse instanceof HttpErrorResponse) {
-      return new Error(tokenResponse.message);
-    }
+    // const tokenResponse = await lastValueFrom(
+    //   this.http.post<UnderdogFantasyAuthenticateResponseDto>(
+    //     '/api/underdog/refreshToken',
+    //     body
+    //   )
+    // ).catch((err: HttpErrorResponse) => err);
 
-    user.underdogUserInfo.token = {
-      accessToken: tokenResponse.access_token,
-      refreshToken: tokenResponse.refresh_token,
-      tokenExpirationDate: new Date(
-        new Date().getTime() + tokenResponse.expires_in * 1000
-      ).toISOString(),
-    };
-    this.userService.setUser(user);
+    // if (tokenResponse instanceof HttpErrorResponse) {
+    //   return new Error(tokenResponse.message);
+    // }
 
-    return tokenResponse;
+    // user.underdogUserInfo.token = {
+    //   accessToken: tokenResponse.access_token,
+    //   refreshToken: tokenResponse.refresh_token,
+    //   tokenExpirationDate: new Date(
+    //     new Date().getTime() + tokenResponse.expires_in * 1000
+    //   ).toISOString(),
+    // };
+    // this.userService.setUser(user);
+
+    // return tokenResponse;
   }
 
   async authWithPassword(
     username: string,
     password: string
   ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
-    const body = {
-      username: username,
-      password: password,
-    };
+    return new Error('auth not working');
 
-    const tokenResponse = await lastValueFrom(
-      this.http.post<
-        | UnderdogFantasyAuthenticateResponseDto
-        | { error: string; error_description: string }
-      >('/api/underdog/auth', body)
-    ).catch((err: HttpErrorResponse) => err);
+    // const body = {
+    //   username: username,
+    //   password: password,
+    // };
 
-    if (tokenResponse instanceof HttpErrorResponse) {
-      return new Error(tokenResponse.message);
-    }
-    if ('error' in tokenResponse) {
-      return new Error(
-        tokenResponse.error + ' | ' + tokenResponse.error_description
-      );
-    }
+    // const tokenResponse = await lastValueFrom(
+    //   this.http.post<
+    //     | UnderdogFantasyAuthenticateResponseDto
+    //     | { error: string; error_description: string }
+    //   >('/api/underdog/auth', body)
+    // ).catch((err: HttpErrorResponse) => err);
 
-    return tokenResponse;
+    // if (tokenResponse instanceof HttpErrorResponse) {
+    //   return new Error(tokenResponse.message);
+    // }
+    // if ('error' in tokenResponse) {
+    //   return new Error(
+    //     tokenResponse.error + ' | ' + tokenResponse.error_description
+    //   );
+    // }
+
+    // return tokenResponse;
   }
 }

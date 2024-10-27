@@ -94,6 +94,10 @@ export class UnderdogLoginFormComponent implements OnInit {
     }
   }
 
+  onEditClicked(): void {
+    this.showForm();
+  }
+
   onCancel(): void {
     this.hideForm();
   }
