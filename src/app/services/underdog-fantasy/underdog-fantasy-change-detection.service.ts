@@ -149,7 +149,6 @@ export class UnderdogChangeDetectionService {
 
     let change = this.changesToBeDisplayed.shift();
     while (change !== undefined) {
-      debugger;
       console.log('change detected: ', change);
 
       const overlayRef = this.overlay.create({
