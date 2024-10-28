@@ -27,7 +27,8 @@ export class SettledEntriesComponent {
     ),
     tap((slips) => {
       (slips ?? []).forEach((slip) => {
-        this.slipExpansionState[slip.id] = false;
+        this.slipExpansionState[slip.id] =
+          this.slipExpansionState[slip.id] ?? false;
       });
     })
   );
