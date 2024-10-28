@@ -12,6 +12,7 @@ export class SelectionRowComponent {
   constructor() {}
 
   @Input() selection!: UnderdogFantasySelection;
+  @Input() elevated = false;
 
   SelectionResult = SelectionResult;
 }

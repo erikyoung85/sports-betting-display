@@ -4,6 +4,7 @@ import {
   provideClientHydration,
 } from '@angular/platform-browser';
 
+import { OverlayModule } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
 import {
   provideHttpClient,
@@ -31,6 +32,7 @@ import { AddUserToSlipComponent } from './components/add-user-to-slip/add-user-t
 import { SelectionRowComponent } from './components/selection-row/selection-row.component';
 import { SelectionStatusIconComponent } from './components/selection-status-icon/selection-status-icon.component';
 import { SettledEntriesComponent } from './components/settled-entries/settled-entries.component';
+import { SlipChangeComponent } from './components/slip-change/slip-change.component';
 import { SlipResultPayoutChipComponent } from './components/slip-result-payout-chip/slip-result-payout-chip.component';
 import { SlipUserChipsComponent } from './components/slip-user-chips/slip-user-chips.component';
 import { UserCardComponent } from './components/user-manager/user-card/user-card.component';
@@ -38,6 +40,7 @@ import { UnderdogLoginFormComponent } from './components/user-manager/user-form/
 import { UserFormComponent } from './components/user-manager/user-form/user-form.component';
 import { UserManagerComponent } from './components/user-manager/user-manager.component';
 import { LocalStorageService } from './services/local-storage/local-storage.service';
+import { UnderdogChangeDetectionService } from './services/underdog-fantasy/underdog-fantasy-change-detection.service';
 import { UnderdogFantasyService } from './services/underdog-fantasy/underdog-fantasy.service';
 import { SharedModule } from './shared/shared.module';
 
@@ -55,6 +58,7 @@ import { SharedModule } from './shared/shared.module';
     UserFormComponent,
     AddUserToSlipComponent,
     UnderdogLoginFormComponent,
+    SlipChangeComponent,
   ],
   imports: [
     BrowserModule,
@@ -76,6 +80,7 @@ import { SharedModule } from './shared/shared.module';
     ReactiveFormsModule,
     MatMenuModule,
     MatSlideToggleModule,
+    OverlayModule,
   ],
   providers: [
     provideClientHydration(),
@@ -83,6 +88,7 @@ import { SharedModule } from './shared/shared.module';
     provideHttpClient(withInterceptorsFromDi()),
     LocalStorageService,
     UnderdogFantasyService,
+    UnderdogChangeDetectionService,
   ],
   bootstrap: [AppComponent],
 })

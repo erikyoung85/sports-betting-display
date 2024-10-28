@@ -1,12 +1,17 @@
+import { Overlay } from '@angular/cdk/overlay';
+import { ComponentPortal } from '@angular/cdk/portal';
 import { Injectable } from '@angular/core';
 import { keyBy } from 'lodash';
-import { BehaviorSubject, combineLatest } from 'rxjs';
+import { combineLatest } from 'rxjs';
+import { SlipChangeComponent } from '../../components/slip-change/slip-change.component';
 import { User } from '../user/models/user.model';
 import { UserService } from '../user/user.service';
 import { SelectionResult } from './enums/selection-result.enum';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
 import { UnderdogFantasySelection } from './models/underdog-fantasy-selection.model';
 import { UnderdogFantasyService } from './underdog-fantasy.service';
+
+const SHOW_FOR_DURATION = 5000;
 
 type SlipDictByUser = {
   [username: string]: { [slidId: string]: UnderdogFantasyEntrySlip };
@@ -31,11 +36,11 @@ export interface SlipResultChange extends SlipChangeBase {
 
 export interface SelectionResultChange extends SlipChangeBase {
   changeType: SlipChangeType.SELECTION_RESULT;
-  legId: string;
+  selectionId: string;
   newStatus: SelectionResult;
 }
 
-type SlipChange = SlipResultChange | SelectionResultChange;
+export type SlipChange = SlipResultChange | SelectionResultChange;
 
 @Injectable({
   providedIn: 'root',
@@ -43,12 +48,25 @@ type SlipChange = SlipResultChange | SelectionResultChange;
 export class UnderdogChangeDetectionService {
   private currentSlipDictByUser: SlipDictByUser = {};
 
-  readonly changesToBeDisplayed$ = new BehaviorSubject<SlipChange[]>([]);
+  private changesToBeDisplayed: SlipChange[] = [];
+
+  private changeDetectionEnabled = false;
+  private showingChanges = false;
+  //   private mockChangeSent = false;
 
   constructor(
     private readonly underdogService: UnderdogFantasyService,
-    private readonly userService: UserService
-  ) {
+    private readonly userService: UserService,
+    private readonly overlay: Overlay
+  ) {}
+
+  initChangeDetection(): void {
+    if (this.changeDetectionEnabled) {
+      console.log('change detection already enabled');
+      return;
+    }
+
+    this.changeDetectionEnabled = true;
     combineLatest([
       this.underdogService.activeSlipsByUsername$,
       this.underdogService.settledSlipsByUsername$,
@@ -68,6 +86,32 @@ export class UnderdogChangeDetectionService {
           newSlipDictByUser[username] = slipDict;
         }
 
+        // // show mock change for dev
+        // const mockUser = Object.values(userDict)[0];
+        // const mockSlip = Object.values(
+        //   newSlipDictByUser[mockUser?.username] ?? {}
+        // )[0];
+        // if (mockUser && mockSlip && !this.mockChangeSent) {
+        //   this.mockChangeSent = true;
+
+        //   const change1 = <SlipResultChange>{
+        //     changeType: SlipChangeType.SLIP_RESULT,
+        //     slip: mockSlip,
+        //     user: mockUser,
+        //     newStatus: SelectionResult.Won,
+        //   };
+        //   const change2 = <SelectionResultChange>{
+        //     changeType: SlipChangeType.SELECTION_RESULT,
+        //     slip: mockSlip,
+        //     selectionId: mockSlip.selections[0].id,
+        //     user: mockUser,
+        //     newStatus: SelectionResult.Won,
+        //   };
+
+        //   this.changesToBeDisplayed.push(change1, change2);
+        //   this.showChanges();
+        // }
+
         // detect changes made to any slips
         for (const username of Object.keys(newSlipDictByUser)) {
           const user = userDict[username];
@@ -84,9 +128,8 @@ export class UnderdogChangeDetectionService {
               newSlip !== undefined
             ) {
               const changes = this.detectChanges(prevSlip, newSlip, user);
-              changes.forEach((change) => {
-                this.showChange(change);
-              });
+              this.changesToBeDisplayed.push(...changes);
+              this.showChanges();
             }
           }
         }
@@ -97,8 +140,40 @@ export class UnderdogChangeDetectionService {
     );
   }
 
-  async showChange(change: SlipChange): Promise<void> {
-    console.log('change detected: ', change);
+  async showChanges(): Promise<void> {
+    if (this.showingChanges) return;
+    this.showingChanges = true;
+
+    const timeout = (ms: number) =>
+      new Promise((resolve) => setTimeout(resolve, ms));
+
+    let change = this.changesToBeDisplayed.shift();
+    while (change !== undefined) {
+      debugger;
+      console.log('change detected: ', change);
+
+      const overlayRef = this.overlay.create({
+        hasBackdrop: true,
+        positionStrategy: this.overlay
+          .position()
+          .global()
+          .centerHorizontally()
+          .centerVertically(),
+      });
+      const slipChangePortal = new ComponentPortal(SlipChangeComponent);
+      const componentRef = overlayRef.attach(slipChangePortal);
+      componentRef.instance.slipChange = change;
+
+      // wait for duration and close overlay
+      await timeout(SHOW_FOR_DURATION);
+      overlayRef.detach();
+      await timeout(1000);
+
+      // update change to next change to display
+      change = this.changesToBeDisplayed.shift();
+    }
+
+    this.showingChanges = false;
   }
 
   private detectChanges(
@@ -113,17 +188,7 @@ export class UnderdogChangeDetectionService {
 
     const changes: SlipChange[] = [];
 
-    // detect slip result change
-    if (prevSlip.result !== newSlip.result) {
-      const change: SlipResultChange = {
-        changeType: SlipChangeType.SLIP_RESULT,
-        slip: newSlip,
-        user: user,
-        newStatus: newSlip.result,
-      };
-      changes.push(change);
-    }
-
+    // first detect selection result changes
     const oldSelectionDict: {
       [selectionId: string]: UnderdogFantasySelection;
     } = keyBy(prevSlip.selections, (selection) => selection.id);
@@ -136,12 +201,23 @@ export class UnderdogChangeDetectionService {
           slip: newSlip,
           user: user,
           changeType: SlipChangeType.SELECTION_RESULT,
-          legId: newSelection.id,
+          selectionId: newSelection.id,
           newStatus: newSelection.result,
         };
         changes.push(change);
       }
     });
+
+    // detect slip result change
+    if (prevSlip.result !== newSlip.result) {
+      const change: SlipResultChange = {
+        changeType: SlipChangeType.SLIP_RESULT,
+        slip: newSlip,
+        user: user,
+        newStatus: newSlip.result,
+      };
+      changes.push(change);
+    }
 
     return changes;
   }

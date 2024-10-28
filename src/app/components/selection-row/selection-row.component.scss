@@ -4,6 +4,9 @@ $theme: mat.define-theme();
 
 
 .selection-won {
+    &.selection-elevated {
+        @include mat.elevation(24, 'green');
+    }
     mat-progress-bar {
         --mdc-linear-progress-active-indicator-color: green;
     }
@@ -16,12 +19,18 @@ $theme: mat.define-theme();
 }
 
 .selection-lost {
+    &.selection-elevated {
+        @include mat.elevation(24, red);
+    }
     mat-progress-bar {
         @include mat.progress-bar-color($theme, $color-variant: error);
     }
 }
 
 .selection-pushed {
+    &.selection-elevated {
+        @include mat.elevation(24, rgb(255, 165, 0));
+    }
     mat-progress-bar {
         --mdc-linear-progress-active-indicator-color: rgb(255, 165, 0);
         --mdc-linear-progress-track-color: rgb(255, 165, 0, .3)

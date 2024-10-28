@@ -1,5 +1,6 @@
 <mat-list-item 
   [ngClass]="{
+    'selection-elevated': elevated,
     'selection-pending': selection.result === SelectionResult.Pending,
     'selection-won': selection.result === SelectionResult.Won,
     'selection-lost': selection.result === SelectionResult.Lost,

@@ -1,0 +1,55 @@
+<mat-card>
+
+  <mat-card-header>
+    <mat-card-title>
+      <span>{{ slipChange.user.firstName }} </span> 
+      <span> 
+        <span *ngIf="slipChange.newStatus === SelectionResult.Won" style="color: green"> WON </span>
+        <span *ngIf="slipChange.newStatus === SelectionResult.Lost" style="color: red"> LOST </span>
+        their
+      </span>
+      <span>
+        <span *ngIf="slipChange.changeType === SlipChangeType.SLIP_RESULT"> bet </span>
+        <span *ngIf="slipChange.changeType === SlipChangeType.SELECTION_RESULT"> leg </span>
+      </span>
+      
+    </mat-card-title>
+    <mat-card-subtitle *ngIf="slipChange.newStatus === SelectionResult.Lost">Dumb bitch!</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <mat-card 
+      *ngIf="slipChange.slip as slip"
+      style="margin: 2rem;"
+      [class.component-change-focus]="slipChange.changeType === SlipChangeType.SLIP_RESULT"
+      [class.won]="slipChange.newStatus === SelectionResult.Won"
+      [class.lost]="slipChange.newStatus === SelectionResult.Lost"
+    >
+      <mat-card-header style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;">
+        <mat-card-title-group>
+          <mat-card-title style="display: flex; flex-direction: row; gap: 8px; align-items: flex-start;">
+            <span style="text-wrap: nowrap">{{ slip.selectionCount }} Picks to {{ slip.payoutMultiplier }}x Money</span>
+            <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
+          </mat-card-title>
+          <mat-card-subtitle>{{ slip.fee | money }} down for {{ slip.maxPayout | money }} payout</mat-card-subtitle>
+          <mat-card-subtitle style="display: flex; flex-direction: row;">
+            <app-selection-status-icon
+              *ngFor="let selection of slip.selections"
+              [selection]="selection"
+            ></app-selection-status-icon>
+          </mat-card-subtitle>
+        </mat-card-title-group>
+      </mat-card-header>
+      <mat-card-content>
+  
+        <mat-list>
+          <app-selection-row
+            *ngFor="let selection of slip.selections" [selection]="selection"
+            [elevated]="slipChange.changeType === SlipChangeType.SELECTION_RESULT && slipChange.selectionId === selection.id"
+          ></app-selection-row>
+        </mat-list>
+  
+      </mat-card-content>
+    </mat-card>
+  </mat-card-content>
+</mat-card>
