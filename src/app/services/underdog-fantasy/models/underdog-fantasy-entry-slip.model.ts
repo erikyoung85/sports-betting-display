@@ -90,6 +90,7 @@ export class UnderdogFantasyEntrySlip {
       | UnderdogFantasyGetSettledSlipsResponseDto
   ): UnderdogFantasyEntrySlip[] {
     const playersDict = keyBy(dto.data.players, (player) => player.id);
+    const gamesDict = keyBy(dto.data.games, (game) => game.id);
     const appearanceDict = keyBy(
       dto.data.appearances,
       (appearance) => appearance.id
@@ -119,6 +120,7 @@ export class UnderdogFantasyEntrySlip {
           const overUnder = overUnderDict[line.over_under_id];
           const appearance =
             appearanceDict[overUnder.appearance_stat.appearance_id];
+          const game = gamesDict[appearance.match_id];
           const player = playersDict[appearance.player_id];
 
           return {
@@ -148,6 +150,7 @@ export class UnderdogFantasyEntrySlip {
             choiceDisplay: option.choice_display,
             liveEvent: line.live_event,
             liveEventStat: line.live_event_stat,
+            matchProgress: game.match_progress,
             stat: overUnder.appearance_stat.stat,
             statDisplay: overUnder.appearance_stat.display_stat,
             statTargetValue: line.stat_value,

@@ -18,6 +18,7 @@ export interface IUnderdogFantasySelection {
   choiceDisplay: string;
   liveEvent: boolean;
   liveEventStat: string | null;
+  matchProgress: string;
   stat: string;
   statDisplay: string;
   statTargetValue: string;
@@ -60,6 +61,10 @@ export class UnderdogFantasySelection {
 
   get liveEventStat(): number | null {
     return this.props.liveEventStat ? Number(this.props.liveEventStat) : null;
+  }
+
+  get matchProgress(): string {
+    return this.props.matchProgress;
   }
 
   get stat(): string {
