@@ -4,9 +4,11 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { isEqual } from 'lodash';
 import {
   BehaviorSubject,
   combineLatest,
+  distinctUntilChanged,
   interval,
   lastValueFrom,
   map,
@@ -32,24 +34,27 @@ type SlipToAdditionalUsernames = { [slipId: string]: string[] };
 export class UnderdogFantasyService {
   private readonly baseUrl = 'https://api.underdogfantasy.com';
 
-  _dataLastUpdated$: BehaviorSubject<Date> = new BehaviorSubject(new Date());
-  dataLastUpdated$ = this._dataLastUpdated$.asObservable();
+  readonly _dataLastUpdated$: BehaviorSubject<Date> = new BehaviorSubject(
+    new Date()
+  );
+  readonly dataLastUpdated$ = this._dataLastUpdated$.asObservable();
 
-  private _activeSlipsByUsername$: BehaviorSubject<{
+  private readonly _activeSlipsByUsername$: BehaviorSubject<{
     [username: string]: UnderdogFantasyEntrySlip[] | undefined;
   }> = new BehaviorSubject({});
-  activeSlipsByUsername$ = this._activeSlipsByUsername$.asObservable();
+  readonly activeSlipsByUsername$ = this._activeSlipsByUsername$.asObservable();
 
-  private _settledSlipsByUsername$: BehaviorSubject<{
+  private readonly _settledSlipsByUsername$: BehaviorSubject<{
     [username: string]: UnderdogFantasyEntrySlip[] | undefined;
   }> = new BehaviorSubject({});
-  settledSlipsByUsername$ = this._settledSlipsByUsername$.asObservable();
+  readonly settledSlipsByUsername$ =
+    this._settledSlipsByUsername$.asObservable();
 
-  private _slipToAdditionalUsers$: BehaviorSubject<SlipToAdditionalUsernames> =
+  private readonly _slipToAdditionalUsers$: BehaviorSubject<SlipToAdditionalUsernames> =
     new BehaviorSubject({});
-  slipToAdditionalUsers$ = this._slipToAdditionalUsers$.asObservable();
+  readonly slipToAdditionalUsers$ = this._slipToAdditionalUsers$.asObservable();
 
-  slipToOriginalUser$: Observable<{
+  readonly slipToOriginalUser$: Observable<{
     [slipId: string]: User;
   }> = combineLatest([
     this.userService.users$,
@@ -73,7 +78,7 @@ export class UnderdogFantasyService {
     })
   );
 
-  slipToUsers$: Observable<{
+  readonly slipToUsers$: Observable<{
     [slipId: string]: User[];
   }> = combineLatest([
     this.userService.userDict$,
@@ -119,6 +124,15 @@ export class UnderdogFantasyService {
     )
   );
 
+  readonly underdogUsers$ = this.userService.users$.pipe(
+    map((users) =>
+      users
+        .map((user) => user.underdogUserInfo)
+        .filter((info) => info !== undefined)
+    ),
+    distinctUntilChanged((prev, curr) => isEqual(prev, curr))
+  );
+
   constructor(
     private readonly http: HttpClient,
     private readonly userService: UserService
@@ -131,9 +145,11 @@ export class UnderdogFantasyService {
       });
 
     // fire whenever the user data changes
-    this.userService.users$.subscribe((users) => {
-      this.getAllSlipsForUser(users);
-    });
+    this.underdogUsers$
+      .pipe(withLatestFrom(this.userService.users$))
+      .subscribe(([_, users]) => {
+        this.getAllSlipsForUser(users);
+      });
 
     // get group slips data
     this.getSlipToAdditionalUsers();

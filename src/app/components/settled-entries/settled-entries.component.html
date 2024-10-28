@@ -14,8 +14,11 @@
           'slip-lost': slip.result === SelectionResult.Lost,
         }"
       >
-        <mat-card-header style="cursor: pointer; display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;">
-          <mat-card-title-group style="text-wrap: nowrap;" (click)="onToggleSelectionExpansion(slip)">
+        <mat-card-header 
+          style="cursor: pointer; display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;"
+          (click)="onToggleSelectionExpansion(slip)"
+        >
+          <mat-card-title-group style="text-wrap: nowrap;">
             <mat-card-title style="font-size: 16px">{{ slip.fee | money }} to win {{ slip.maxPayout | money }}</mat-card-title>
             <mat-card-subtitle style="display: flex; flex-direction: row; gap: 4px">
               <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
@@ -33,7 +36,7 @@
             <mat-icon fontIcon="more_horiz"></mat-icon>
           </button>
           <mat-menu #moreMenu="matMenu">
-            <button mat-menu-item (click)="onMoreClicked(slip)">Add to group</button>
+            <button mat-menu-item (click)="onMoreClicked($event, slip)">Add to group</button>
           </mat-menu>
         </mat-card-header>
         <mat-card-content *ngIf="slipExpansionState[slip.id]" style="padding: 0">

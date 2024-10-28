@@ -9,6 +9,7 @@ import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { UserStats } from '../../../services/user-stats/models/user-stats.model';
 import { UserStatsService } from '../../../services/user-stats/user-stats.service';
 import { User } from '../../../services/user/models/user.model';
+import { UserService } from '../../../services/user/user.service';
 
 @Component({
   selector: 'app-user-card',
@@ -17,7 +18,10 @@ import { User } from '../../../services/user/models/user.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserCardComponent implements OnChanges {
-  constructor(private readonly userStatsService: UserStatsService) {}
+  constructor(
+    private readonly userStatsService: UserStatsService,
+    private readonly userService: UserService
+  ) {}
 
   @Input() user!: User;
   @Input() elliotMode: boolean = false;
@@ -45,5 +49,9 @@ export class UserCardComponent implements OnChanges {
     if (changes['elliotMode']) {
       this._elliotMode$.next(this.elliotMode);
     }
+  }
+
+  onToggleUser(): void {
+    this.userService.toggleUserEnabled(this.user);
   }
 }

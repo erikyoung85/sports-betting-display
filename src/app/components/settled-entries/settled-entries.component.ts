@@ -1,9 +1,10 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { map, tap } from 'rxjs';
+import { combineLatest, map, tap } from 'rxjs';
 import { SelectionResult } from '../../services/underdog-fantasy/enums/selection-result.enum';
 import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
+import { UserService } from '../../services/user/user.service';
 import { AddUserToSlipComponent } from '../add-user-to-slip/add-user-to-slip.component';
 
 @Component({
@@ -15,16 +16,26 @@ import { AddUserToSlipComponent } from '../add-user-to-slip/add-user-to-slip.com
 export class SettledEntriesComponent {
   constructor(
     private readonly underdogFantasyService: UnderdogFantasyService,
-    private readonly dialog: MatDialog
+    private readonly dialog: MatDialog,
+    private readonly userService: UserService
   ) {}
 
   slipExpansionState: { [slipId: string]: boolean } = {};
-  settledSlips$ = this.underdogFantasyService.settledSlipsByUsername$.pipe(
-    map((settledSlipsByUsername) =>
-      Object.values(settledSlipsByUsername)
-        .flatMap((slips) => slips ?? [])
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-    ),
+  settledSlips$ = combineLatest([
+    this.underdogFantasyService.settledSlipsByUsername$,
+    this.userService.userDict$,
+  ]).pipe(
+    map(([settledSlipsByUsername, userDict]) => {
+      const slips: UnderdogFantasyEntrySlip[] = [];
+      Object.keys(settledSlipsByUsername).forEach((username) => {
+        if (userDict[username].enabled) {
+          slips.push(...(settledSlipsByUsername[username] ?? []));
+        }
+      });
+      return slips.sort(
+        (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+      );
+    }),
     tap((slips) => {
       (slips ?? []).forEach((slip) => {
         this.slipExpansionState[slip.id] =
@@ -39,7 +50,8 @@ export class SettledEntriesComponent {
     this.slipExpansionState[slip.id] = !this.slipExpansionState[slip.id];
   }
 
-  onMoreClicked(slip: UnderdogFantasyEntrySlip): void {
+  onMoreClicked(event: MouseEvent, slip: UnderdogFantasyEntrySlip): void {
+    event.stopPropagation();
     this.dialog.open(AddUserToSlipComponent, { data: slip });
   }
 }

@@ -15,9 +15,21 @@ export type UserDict = {
   providedIn: 'root',
 })
 export class UserService {
-  _userDict$ = new BehaviorSubject<UserDict>({});
-  userDict$ = this._userDict$.asObservable();
-  users$ = this.userDict$.pipe(map((userDict) => Object.values(userDict)));
+  private readonly _userDict$ = new BehaviorSubject<UserDict>({});
+  readonly userDict$ = this._userDict$.asObservable();
+  readonly users$ = this.userDict$.pipe(
+    map((userDict) => Object.values(userDict))
+  );
+
+  toggleUserEnabled(user: User): void {
+    this._userDict$.next({
+      ...this._userDict$.value,
+      [user.username]: {
+        ...user,
+        enabled: !user.enabled,
+      },
+    });
+  }
 
   async getUser(username: string): Promise<User | undefined> {
     const userDtoOrError = await lastValueFrom(

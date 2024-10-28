@@ -87,6 +87,7 @@ export class UserFormComponent {
           : this.userForm.value.username ?? '',
       firstName: this.userForm.value.firstName ?? '',
       lastName: this.userForm.value.lastName ?? '',
+      enabled: true,
       underdogUserInfo: this.underdogUserInfo
         ? {
             username: this.underdogUserInfo.username ?? '',

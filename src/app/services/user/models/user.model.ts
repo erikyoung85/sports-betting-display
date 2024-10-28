@@ -5,6 +5,7 @@ export interface User {
   firstName: string;
   lastName: string;
   underdogUserInfo?: UnderdogUserInfo;
+  enabled: boolean;
 }
 
 export interface UnderdogUserInfo {
@@ -21,6 +22,7 @@ export function createUserFromDto(userDto: GetUserResponseDto): User {
     username: userDto.username,
     firstName: userDto.first_name,
     lastName: userDto.last_name,
+    enabled: true,
   };
 
   if (userDto.underdog_user_username) {
