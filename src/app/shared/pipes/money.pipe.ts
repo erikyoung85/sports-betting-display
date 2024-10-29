@@ -9,13 +9,18 @@ export class MoneyPipe implements PipeTransform {
   transform(value: string | number): string {
     const number = Number(value);
     const isNegative = number < 0;
+    const over1000 = Math.abs(number) >= 1000;
+    let numberStr = Math.abs(number).toFixed(2);
 
-    const formattedNumber = `${isNegative ? '-' : ''}$${Math.abs(
-      number
-    ).toFixed(2)}`;
-    if (formattedNumber.endsWith('.00')) {
-      return `$${Math.abs(number).toFixed(0)}`;
+    if (over1000) {
+      numberStr = `${numberStr.slice(0, 1)},${numberStr.slice(1)}`;
     }
-    return formattedNumber;
+
+    numberStr = `${isNegative ? '-' : ''}$${numberStr}`;
+
+    if (numberStr.endsWith('.00')) {
+      return numberStr.slice(0, -3);
+    }
+    return numberStr;
   }
 }
