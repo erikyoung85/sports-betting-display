@@ -31,6 +31,24 @@ export class UserService {
     });
   }
 
+  setUnderdogUserAuthErrorFlag(username: string, authError: boolean): void {
+    const currUser: User | undefined = this._userDict$.value[username];
+    if (currUser) {
+      this._userDict$.next({
+        ...this._userDict$.value,
+        [currUser.username]: {
+          ...currUser,
+          underdogUserInfo: currUser.underdogUserInfo
+            ? {
+                ...currUser.underdogUserInfo,
+                authError: authError,
+              }
+            : undefined,
+        },
+      });
+    }
+  }
+
   async getUser(username: string): Promise<User | undefined> {
     const userDtoOrError = await lastValueFrom(
       this.http.get<GetUserResponseDto>('/api/getUser', {

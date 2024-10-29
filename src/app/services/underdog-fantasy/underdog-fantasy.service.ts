@@ -153,7 +153,7 @@ export class UnderdogFantasyService {
           isEqual(Object.keys(prev), Object.keys(curr))
         )
       )
-      .subscribe(async (userDict) => {
+      .subscribe((userDict) => {
         this.getAllSlipsForUsers(Object.values(userDict));
       });
 
@@ -162,10 +162,13 @@ export class UnderdogFantasyService {
   }
 
   async getAllSlipsForUsers(users: User[]): Promise<void> {
-    if (users.length === 0) return;
+    const validUsers = users.filter(
+      (user) => user.underdogUserInfo?.authError === false
+    );
+    if (validUsers.length === 0) return;
 
     Promise.all(
-      users.map(async (user) => {
+      validUsers.map(async (user) => {
         // get settled slips for user
         const settledSlips = await this.getSettledSlips(user);
         this._settledSlipsByUsername$.next({
@@ -378,7 +381,7 @@ export class UnderdogFantasyService {
     if (response instanceof HttpErrorResponse) {
       // if we get a 429, we've hit the rate limit
       if (response.status === 429) {
-        await this.userService.getUser(user.username);
+        this.userService.setUnderdogUserAuthErrorFlag(user.username, true);
       }
 
       return new Error(response.error);
