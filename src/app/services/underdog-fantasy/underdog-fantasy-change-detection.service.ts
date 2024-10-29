@@ -52,7 +52,7 @@ export class UnderdogChangeDetectionService {
 
   private changeDetectionEnabled = false;
   private showingChanges = false;
-  //   private mockChangeSent = false;
+  private mockChangeSent = false;
 
   constructor(
     private readonly underdogService: UnderdogFantasyService,
@@ -86,7 +86,7 @@ export class UnderdogChangeDetectionService {
           newSlipDictByUser[username] = slipDict;
         }
 
-        // // show mock change for dev
+        // show mock change for dev
         // const mockUser = Object.values(userDict)[0];
         // const mockSlip = Object.values(
         //   newSlipDictByUser[mockUser?.username] ?? {}
@@ -98,14 +98,14 @@ export class UnderdogChangeDetectionService {
         //     changeType: SlipChangeType.SLIP_RESULT,
         //     slip: mockSlip,
         //     user: mockUser,
-        //     newStatus: SelectionResult.Won,
+        //     newStatus: SelectionResult.Lost,
         //   };
         //   const change2 = <SelectionResultChange>{
         //     changeType: SlipChangeType.SELECTION_RESULT,
         //     slip: mockSlip,
         //     selectionId: mockSlip.selections[0].id,
         //     user: mockUser,
-        //     newStatus: SelectionResult.Won,
+        //     newStatus: SelectionResult.Lost,
         //   };
 
         //   this.changesToBeDisplayed.push(change1, change2);

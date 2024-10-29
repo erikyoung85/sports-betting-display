@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { SelectionResult } from '../../services/underdog-fantasy/enums/selection-result.enum';
 import {
   SlipChange,
@@ -11,11 +17,41 @@ import {
   styleUrls: ['./slip-change.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SlipChangeComponent {
+export class SlipChangeComponent implements OnInit, OnDestroy {
   constructor() {}
 
   @Input() slipChange!: SlipChange;
+  private audio?: HTMLAudioElement | undefined;
 
   SlipChangeType = SlipChangeType;
   SelectionResult = SelectionResult;
+
+  ngOnInit(): void {
+    if (this.slipChange.newStatus === SelectionResult.Won) {
+      this.audio = this.playCheeringAudio();
+    }
+    if (this.slipChange.newStatus === SelectionResult.Lost) {
+      this.audio = this.playBooingAudio();
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.audio?.pause();
+  }
+
+  playCheeringAudio(): HTMLAudioElement {
+    const audio = new Audio();
+    audio.src = '../assets/funny-shout-cheering.ogg';
+    audio.load();
+    audio.play();
+    return audio;
+  }
+
+  playBooingAudio(): HTMLAudioElement {
+    const audio = new Audio();
+    audio.src = '../assets/funny-booing.flac';
+    audio.load();
+    audio.play();
+    return audio;
+  }
 }
