@@ -87,30 +87,30 @@ export class UnderdogChangeDetectionService {
         }
 
         // show mock change for dev
-        // const mockUser = Object.values(userDict)[0];
-        // const mockSlip = Object.values(
-        //   newSlipDictByUser[mockUser?.username] ?? {}
-        // )[0];
-        // if (mockUser && mockSlip && !this.mockChangeSent) {
-        //   this.mockChangeSent = true;
+        const mockUser = Object.values(userDict)[0];
+        const mockSlip = Object.values(
+          newSlipDictByUser[mockUser?.username] ?? {}
+        )[0];
+        if (mockUser && mockSlip && !this.mockChangeSent) {
+          this.mockChangeSent = true;
 
-        //   const change1 = <SlipResultChange>{
-        //     changeType: SlipChangeType.SLIP_RESULT,
-        //     slip: mockSlip,
-        //     user: mockUser,
-        //     newStatus: SelectionResult.Lost,
-        //   };
-        //   const change2 = <SelectionResultChange>{
-        //     changeType: SlipChangeType.SELECTION_RESULT,
-        //     slip: mockSlip,
-        //     selectionId: mockSlip.selections[0].id,
-        //     user: mockUser,
-        //     newStatus: SelectionResult.Lost,
-        //   };
+          const change1 = <SlipResultChange>{
+            changeType: SlipChangeType.SLIP_RESULT,
+            slip: mockSlip,
+            user: mockUser,
+            newStatus: SelectionResult.Lost,
+          };
+          const change2 = <SelectionResultChange>{
+            changeType: SlipChangeType.SELECTION_RESULT,
+            slip: mockSlip,
+            selectionId: mockSlip.selections[0].id,
+            user: mockUser,
+            newStatus: SelectionResult.Lost,
+          };
 
-        //   this.changesToBeDisplayed.push(change1, change2);
-        //   this.showChanges();
-        // }
+          this.changesToBeDisplayed.push(change1);
+          this.showChanges();
+        }
 
         // detect changes made to any slips
         for (const username of Object.keys(newSlipDictByUser)) {
@@ -164,6 +164,7 @@ export class UnderdogChangeDetectionService {
       componentRef.instance.slipChange = change;
 
       // wait for duration and close overlay
+      break;
       await timeout(SHOW_FOR_DURATION);
       overlayRef.detach();
       await timeout(1000);

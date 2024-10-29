@@ -22,9 +22,11 @@
     <mat-card 
       *ngIf="slipChange.slip as slip"
       style="margin: 2rem;"
-      [class.component-change-focus]="slipChange.changeType === SlipChangeType.SLIP_RESULT"
-      [class.won]="slipChange.newStatus === SelectionResult.Won"
-      [class.lost]="slipChange.newStatus === SelectionResult.Lost"
+      [ngClass]="{
+        'slip-change-focus': slipChange.changeType === SlipChangeType.SLIP_RESULT,
+        'won': slipChange.newStatus === SelectionResult.Won,
+        'lost': slipChange.newStatus === SelectionResult.Lost
+      }"
     >
       <mat-card-header style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;">
         <mat-card-title-group>

@@ -9,18 +9,3 @@
         @include mat.elevation(24, 'red');
     }
 }
-
-.slip-change-focus {
-    &.won {
-        mat-list-item {
-            @include mat.elevation(24, 'green');
-        }
-        
-    }
-
-    &.lost {
-        mat-list-item {
-            @include mat.elevation(24, 'red');
-        }
-    }
-}
