@@ -5,9 +5,16 @@
  } as config">
 
   <div *ngIf="!config.editMode && config.underdogUserInfo">
+    <h3>Connected Accounts</h3>
     <div class="user-card">
-      <mat-icon svgIcon="https://underdogfantasy.com/favicon.png"></mat-icon>
-      <span>Underdog username: {{ config.underdogUserInfo.username }}</span>
+      <div style="display: flex; flex-direction: row; align-items: center;">
+        <img src="https://underdogfantasy.com/favicon.png" />
+  
+        <div style="margin-left: 12px;">
+          <div style="font-size: 12px; font-weight: 700; color: black;">Underdog</div>
+          <div style="font-size: 12px; font-weight: 500;">{{ config.underdogUserInfo.username }}</div>
+        </div>
+      </div>
 
       <button mat-button (click)="onEditClicked()">Edit</button>
     </div>
@@ -25,7 +32,10 @@
         <input matInput type="password" placeholder="Underdog password" formControlName="password">
       </mat-form-field>
       <div>
-        <button mat-raised-button (click)="onLoginToUnderdog()">Login to Underdog</button>
+        <div style="display: flex; flex-direction: row; gap: 4px">
+          <button mat-flat-button *ngIf="user?.underdogUserInfo !== undefined" (click)="onCancel()">Cancel</button>
+          <button mat-raised-button (click)="onLoginToUnderdog()">Login to Underdog</button>
+        </div>
         <mat-error *ngIf="config.underdogLoginStatusText">{{ config.underdogLoginStatusText }}</mat-error>
       </div>
     </form>
