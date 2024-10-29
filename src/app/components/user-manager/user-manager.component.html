@@ -6,7 +6,7 @@
         Add User
       </button>
 
-      <mat-slide-toggle (toggleChange)="onElliotModeToggleChange()">Elliot mode</mat-slide-toggle>
+      <!-- <mat-slide-toggle (toggleChange)="onElliotModeToggleChange()">Elliot mode</mat-slide-toggle> -->
     </mat-card-title>
     <span *ngIf="(secondsUpdatedAgo$ | async) as secondsUpdatedAgo" style="font-size: 10px; font-weight: 300">
       data updated {{ secondsUpdatedAgo }} seconds ago
