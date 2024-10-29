@@ -79,9 +79,9 @@ export class UnderdogFantasyEntrySlip {
   }
 
   constructor(private readonly props: IUnderdogFantasyEntrySlip) {
-    this._selections = props.selections.map(
-      (selection) => new UnderdogFantasySelection(selection)
-    );
+    this._selections = props.selections
+      .map((selection) => new UnderdogFantasySelection(selection))
+      .sort((a, b) => a.player.id.localeCompare(b.player.id));
   }
 
   static fromDto(
