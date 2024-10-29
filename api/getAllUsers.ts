@@ -31,7 +31,8 @@ export async function getAllUsers(): Promise<UserEntity[] | Error> {
               underdog_user_username,
               underdog_user_access_token,
               underdog_user_refresh_token,
-              underdog_user_token_expiration_date
+              underdog_user_token_expiration_date,
+              underdog_auth_failed_attempts
             FROM "user"
         `);
 

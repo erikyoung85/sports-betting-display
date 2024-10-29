@@ -45,7 +45,13 @@ export class UserService {
       return undefined;
     }
 
-    return createUserFromDto(userDtoOrError);
+    const responseUser: User = createUserFromDto(userDtoOrError);
+    const userDict = {
+      ...this._userDict$.value,
+      [responseUser.username]: responseUser,
+    };
+    this._userDict$.next(userDict);
+    return responseUser;
   }
 
   async getAllUsers(): Promise<void> {

@@ -9,7 +9,10 @@ import {
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { BehaviorSubject } from 'rxjs';
 import { UnderdogFantasyService } from '../../../../services/underdog-fantasy/underdog-fantasy.service';
-import { UnderdogUserInfo } from '../../../../services/user/models/user.model';
+import {
+  UnderdogUserInfo,
+  User,
+} from '../../../../services/user/models/user.model';
 
 interface UnderdogLoginForm {
   username: FormControl<string | null>;
@@ -25,7 +28,7 @@ interface UnderdogLoginForm {
 export class UnderdogLoginFormComponent implements OnInit {
   constructor(private readonly underdogService: UnderdogFantasyService) {}
 
-  @Input() loginInfo?: UnderdogUserInfo | undefined;
+  @Input() user?: User | undefined;
   @Output() onLoginInfoChange: EventEmitter<UnderdogUserInfo> =
     new EventEmitter();
 
@@ -37,14 +40,14 @@ export class UnderdogLoginFormComponent implements OnInit {
 
   readonly loginForm = new FormGroup<UnderdogLoginForm>({
     username: new FormControl(
-      this.loginInfo?.username ?? null,
+      this.user?.underdogUserInfo?.username ?? null,
       Validators.required
     ),
     password: new FormControl(null),
   });
 
   ngOnInit(): void {
-    this.underdogUserInfo$.next(this.loginInfo);
+    this.underdogUserInfo$.next(this.user?.underdogUserInfo);
     if (this.underdogUserInfo$.value?.token === undefined) {
       this.showForm();
     }
@@ -66,20 +69,22 @@ export class UnderdogLoginFormComponent implements OnInit {
     if (!this.loginForm.valid) {
       return;
     }
-
     const underdogUsername = this.loginForm.value.username;
     const underdogPassword = this.loginForm.value.password;
-
     if (underdogUsername && underdogPassword) {
-      const authResponse = await this.underdogService.authWithPassword(
-        underdogUsername,
-        underdogPassword
-      );
+      const authResponse = await this.underdogService
+        .authWithPassword(
+          this.user?.username ?? '',
+          underdogUsername,
+          underdogPassword
+        )
+        .catch((err: Error) => err);
       if (authResponse instanceof Error) {
         this.underdogLoginStatusText$.next(authResponse.message);
       } else {
         this.underdogUserInfo$.next({
           username: underdogUsername,
+          authError: false,
           token: {
             accessToken: authResponse.access_token,
             refreshToken: authResponse.refresh_token,

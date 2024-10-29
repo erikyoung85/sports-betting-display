@@ -24,7 +24,7 @@
     </section>
   
     <section>
-      <app-underdog-login-form [loginInfo]="user?.underdogUserInfo" (onLoginInfoChange)="onUnderdogLoginInfoChange($event)"></app-underdog-login-form>
+      <app-underdog-login-form [user]="user" (onLoginInfoChange)="onUnderdogLoginInfoChange($event)"></app-underdog-login-form>
     </section>
   </div>
 

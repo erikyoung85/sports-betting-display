@@ -10,6 +10,7 @@ export interface User {
 
 export interface UnderdogUserInfo {
   username: string;
+  authError: boolean;
   token?: {
     accessToken: string;
     refreshToken: string;
@@ -28,6 +29,7 @@ export function createUserFromDto(userDto: GetUserResponseDto): User {
   if (userDto.underdog_user_username) {
     user.underdogUserInfo = {
       username: userDto.underdog_user_username,
+      authError: userDto.underdog_auth_failed_attempts >= 3,
     };
 
     if (

@@ -7,4 +7,5 @@ export interface GetUserResponseDto {
   underdog_user_access_token: string | null;
   underdog_user_refresh_token: string | null;
   underdog_user_token_expiration_date: string | null;
+  underdog_auth_failed_attempts: number;
 }

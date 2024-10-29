@@ -10,6 +10,7 @@ export interface UserEntity {
   underdog_user_access_token: string | null;
   underdog_user_refresh_token: string | null;
   underdog_user_token_expiration_date: string | null;
+  underdog_auth_failed_attempts: number;
 }
 
 export default async function handler(
@@ -19,12 +20,12 @@ export default async function handler(
   try {
     const { username } = request.query;
 
-    const userEntityOrError = getUser(username as string).catch(
+    const userEntityOrError = await getUser(username as string).catch(
       (err: Error) => err
     );
 
     if (userEntityOrError instanceof Error) {
-      return response.status(500).json(userEntityOrError);
+      return response.status(500).send(userEntityOrError.message);
     }
 
     return response.status(200).json(userEntityOrError);
@@ -45,7 +46,8 @@ export async function getUser(username: string): Promise<UserEntity | Error> {
                 underdog_user_username,
                 underdog_user_access_token,
                 underdog_user_refresh_token,
-                underdog_user_token_expiration_date
+                underdog_user_token_expiration_date,
+                underdog_auth_failed_attempts
             FROM "user"
             WHERE "user".username = '${username}';
         `);

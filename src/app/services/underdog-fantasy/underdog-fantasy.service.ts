@@ -9,6 +9,7 @@ import {
   BehaviorSubject,
   combineLatest,
   distinctUntilChanged,
+  filter,
   interval,
   lastValueFrom,
   map,
@@ -141,21 +142,26 @@ export class UnderdogFantasyService {
     interval(30000)
       .pipe(withLatestFrom(this.userService.users$))
       .subscribe(([_, users]) => {
-        this.getAllSlipsForUser(users);
+        this.getAllSlipsForUsers(users);
       });
 
-    // fire whenever the user data changes
-    this.underdogUsers$
-      .pipe(withLatestFrom(this.userService.users$))
-      .subscribe(([_, users]) => {
-        this.getAllSlipsForUser(users);
+    // if the user list changes, get all slips for all users
+    this.userService.userDict$
+      .pipe(
+        filter((userDict) => Object.keys(userDict).length > 0),
+        distinctUntilChanged((prev, curr) =>
+          isEqual(Object.keys(prev), Object.keys(curr))
+        )
+      )
+      .subscribe(async (userDict) => {
+        this.getAllSlipsForUsers(Object.values(userDict));
       });
 
     // get group slips data
     this.getSlipToAdditionalUsers();
   }
 
-  private async getAllSlipsForUser(users: User[]): Promise<void> {
+  async getAllSlipsForUsers(users: User[]): Promise<void> {
     if (users.length === 0) return;
 
     Promise.all(
@@ -200,11 +206,7 @@ export class UnderdogFantasyService {
             headers,
           }
         )
-      ).catch((err: HttpErrorResponse) => {
-        // force refresh token and wait for retry
-        this.getUnderdogToken(user, true);
-        return err;
-      });
+      ).catch((err: HttpErrorResponse) => err);
 
       if (settledSlipsDto instanceof HttpErrorResponse) {
         console.error(
@@ -242,11 +244,8 @@ export class UnderdogFantasyService {
           headers,
         }
       )
-    ).catch((err: HttpErrorResponse) => {
-      // force refresh token and wait for retry
-      this.getUnderdogToken(user, true);
-      return err;
-    });
+    ).catch((err: HttpErrorResponse) => err);
+
     if (activeSlipsDto instanceof HttpErrorResponse) {
       console.error(
         `Error getting active slips for ${user.username}`,
@@ -345,82 +344,81 @@ export class UnderdogFantasyService {
       if (tokenIsExpired)
         console.info(`Token is expired for ${user.username}... refreshing`);
 
-      const token = await this.refreshTokenForUser(user);
-      if (token instanceof Error) {
-        console.error(`Error refreshing token for ${user.username}`, token);
+      const userOrError = await this.refreshTokenForUser(user);
+      if (userOrError instanceof Error) {
+        console.error(userOrError);
         return undefined;
       }
 
-      console.info(`Successfully refreshed token for ${user.username}`);
-      return token.access_token;
+      return userOrError.underdogUserInfo?.token?.accessToken;
     }
 
     return user.underdogUserInfo.token.accessToken;
   }
 
-  private async refreshTokenForUser(
-    user: User
-  ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
-    return new Error('Refresh token not working');
+  private async refreshTokenForUser(user: User): Promise<User | Error> {
+    if (user.underdogUserInfo?.authError === true) {
+      return new Error(
+        `Too many auth errors, skipping refresh for ${user.username}`
+      );
+    }
 
-    // if (user.underdogUserInfo?.token?.refreshToken === undefined) {
-    //   return new Error('No refresh token found');
-    // }
+    if (user.underdogUserInfo?.token?.refreshToken === undefined) {
+      return new Error('No refresh token found');
+    }
 
-    // const body = {
-    //   refresh_token: user.underdogUserInfo.token.refreshToken,
-    // };
+    const body = {
+      username: user.username,
+    };
 
-    // const tokenResponse = await lastValueFrom(
-    //   this.http.post<UnderdogFantasyAuthenticateResponseDto>(
-    //     '/api/underdog/refreshToken',
-    //     body
-    //   )
-    // ).catch((err: HttpErrorResponse) => err);
+    const response = await lastValueFrom(
+      this.http.post<{ success: boolean }>('/api/underdog/refreshToken', body)
+    ).catch((err: HttpErrorResponse) => err);
 
-    // if (tokenResponse instanceof HttpErrorResponse) {
-    //   return new Error(tokenResponse.message);
-    // }
+    if (response instanceof HttpErrorResponse) {
+      // if we get a 429, we've hit the rate limit
+      if (response.status === 429) {
+        await this.userService.getUser(user.username);
+      }
 
-    // user.underdogUserInfo.token = {
-    //   accessToken: tokenResponse.access_token,
-    //   refreshToken: tokenResponse.refresh_token,
-    //   tokenExpirationDate: new Date(
-    //     new Date().getTime() + tokenResponse.expires_in * 1000
-    //   ).toISOString(),
-    // };
-    // this.userService.setUser(user);
+      return new Error(response.error);
+    }
 
-    // return tokenResponse;
+    const refreshedUser: User | undefined = await this.userService.getUser(
+      user.username
+    );
+    if (refreshedUser === undefined) {
+      return new Error('Error fetching user after token refresh');
+    }
+    console.info('successfully refreshed token for', refreshedUser.username);
+
+    return refreshedUser;
   }
 
   async authWithPassword(
     username: string,
-    password: string
+    underdog_username: string,
+    underdog_password: string
   ): Promise<UnderdogFantasyAuthenticateResponseDto | Error> {
-    return new Error('auth not working');
+    const body = {
+      username: username,
+      underdog_username: underdog_username,
+      underdog_password: underdog_password,
+    };
 
-    // const body = {
-    //   username: username,
-    //   password: password,
-    // };
+    const response = await lastValueFrom(
+      this.http.post<UnderdogFantasyAuthenticateResponseDto>(
+        '/api/underdog/auth',
+        body
+      )
+    ).catch((err: HttpErrorResponse) => err);
 
-    // const tokenResponse = await lastValueFrom(
-    //   this.http.post<
-    //     | UnderdogFantasyAuthenticateResponseDto
-    //     | { error: string; error_description: string }
-    //   >('/api/underdog/auth', body)
-    // ).catch((err: HttpErrorResponse) => err);
+    if (response instanceof HttpErrorResponse) {
+      return new Error(response.error);
+    }
 
-    // if (tokenResponse instanceof HttpErrorResponse) {
-    //   return new Error(tokenResponse.message);
-    // }
-    // if ('error' in tokenResponse) {
-    //   return new Error(
-    //     tokenResponse.error + ' | ' + tokenResponse.error_description
-    //   );
-    // }
+    console.info('successfully logged into Underdog account for', username);
 
-    // return tokenResponse;
+    return response;
   }
 }

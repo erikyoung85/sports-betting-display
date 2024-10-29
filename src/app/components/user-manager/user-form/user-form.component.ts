@@ -91,6 +91,7 @@ export class UserFormComponent {
       underdogUserInfo: this.underdogUserInfo
         ? {
             username: this.underdogUserInfo.username ?? '',
+            authError: this.underdogUserInfo.authError,
             token: this.underdogUserInfo.token
               ? {
                   accessToken: this.underdogUserInfo.token.accessToken,
