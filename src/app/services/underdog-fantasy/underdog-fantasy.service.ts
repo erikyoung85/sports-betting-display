@@ -9,7 +9,6 @@ import {
   BehaviorSubject,
   combineLatest,
   distinctUntilChanged,
-  interval,
   lastValueFrom,
   map,
   Observable,
@@ -138,11 +137,11 @@ export class UnderdogFantasyService {
     private readonly userService: UserService
   ) {
     // fire every 30 seconds or when the user dict changes
-    interval(30000)
-      .pipe(withLatestFrom(this.userService.users$))
-      .subscribe(([_, users]) => {
-        this.getAllSlipsForUser(users);
-      });
+    // interval(30000)
+    //   .pipe(withLatestFrom(this.userService.users$))
+    //   .subscribe(([_, users]) => {
+    //     this.getAllSlipsForUser(users);
+    //   });
 
     // fire whenever the user data changes
     this.underdogUsers$
