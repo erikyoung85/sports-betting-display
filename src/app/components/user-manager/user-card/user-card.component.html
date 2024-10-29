@@ -6,7 +6,7 @@
 
   <mat-card-content style="font-size: 12px; text-wrap: nowrap">
     <div *ngIf="(userStats$ | async) as userStats">
-      <b>Bets pending:</b> {{ userStats.numBetsPending }}<br/>
+      <b>Bets pending:</b> {{ userStats.numBetsPending }} ({{ userStats.moneyPending | money }})<br/>
       <b>Bets won:</b> {{ userStats.numBetsWon }}<br/>
       <b>Bets lost:</b> {{ userStats.numBetsLost }}<br/>
       <b>Total profit:</b> 

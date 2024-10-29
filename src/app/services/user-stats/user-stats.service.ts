@@ -37,6 +37,7 @@ export class UserStatsService {
               moneyBet: 0,
               moneyWon: 0,
               moneyLost: 0,
+              moneyPending: 0,
               totalProfit: 0,
             })
         );
@@ -73,6 +74,8 @@ export class UserStatsService {
               statsByUser[username].moneyBet += caluclatedValues.moneyBet;
               statsByUser[username].moneyWon += caluclatedValues.moneyWon;
               statsByUser[username].moneyLost += caluclatedValues.moneyLost;
+              statsByUser[username].moneyPending +=
+                caluclatedValues.moneyPending;
               statsByUser[username].totalProfit += caluclatedValues.totalProfit;
             });
           });
@@ -93,6 +96,7 @@ export class UserStatsService {
     moneyBet: number;
     moneyWon: number;
     moneyLost: number;
+    moneyPending: number;
     totalProfit: number;
   } {
     const betPending = slip.status === EntryStatus.Active;
@@ -102,11 +106,16 @@ export class UserStatsService {
     const moneyBet = slip.fee;
     let moneyWon = 0;
     let moneyLost = 0;
+    let moneyPending = 0;
     let totalProfit = 0;
     if (betSettled) {
       moneyWon = betWon ? slip.resultPayout ?? 0 : 0;
       moneyLost = betLost ? slip.fee : 0;
       totalProfit = moneyWon - slip.fee;
+    }
+
+    if (betPending) {
+      moneyPending = slip.fee;
     }
 
     return {
@@ -116,6 +125,7 @@ export class UserStatsService {
       moneyBet: moneyBet / numUsersInGroup,
       moneyWon: moneyWon / numUsersInGroup,
       moneyLost: moneyLost / numUsersInGroup,
+      moneyPending: moneyPending / numUsersInGroup,
       totalProfit: totalProfit / numUsersInGroup,
     };
   }

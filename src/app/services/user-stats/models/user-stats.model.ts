@@ -7,5 +7,6 @@ export interface UserStats {
   moneyBet: number;
   moneyWon: number;
   moneyLost: number;
+  moneyPending: number;
   totalProfit: number;
 }
