@@ -1,6 +1,7 @@
 import { EntryOptionType } from '../enums/entry-option-type.enum';
 import { EntryStatus } from '../enums/entry-status.enum';
 import { GameStatus } from '../enums/game-status.enum';
+import { GradedBy } from '../enums/graded-by.enum';
 import { LineType } from '../enums/line-type.enum';
 import { MatchType } from '../enums/match-type.enum';
 import { OwnerType } from '../enums/owner-type.enum';
@@ -156,7 +157,7 @@ export interface UnderdogFantasyGetActiveSlipsResponseDto {
         id: string;
         appearance_id: string;
         display_stat: string;
-        graded_by: string;
+        graded_by: GradedBy;
         pickem_stat_id: string;
         stat: string;
       };

@@ -158,6 +158,7 @@ export class UnderdogFantasyEntrySlip {
             statValue:
               appearance.stat_line?.data[overUnder.appearance_stat.stat] ??
               null,
+            gradedBy: overUnder.appearance_stat.graded_by,
             result: selectionDto.result,
           };
         }),

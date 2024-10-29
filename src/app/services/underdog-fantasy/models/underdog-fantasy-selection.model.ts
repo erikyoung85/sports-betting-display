@@ -1,4 +1,5 @@
 import { EntryOptionType } from '../enums/entry-option-type.enum';
+import { GradedBy } from '../enums/graded-by.enum';
 import { SelectionResult } from '../enums/selection-result.enum';
 import { UnderdogFantasyPlayer } from './underdog-fantasy-player.model';
 
@@ -23,6 +24,7 @@ export interface IUnderdogFantasySelection {
   statDisplay: string;
   statTargetValue: string;
   statValue: string | null;
+  gradedBy: GradedBy;
   result: SelectionResult;
 }
 
@@ -87,12 +89,22 @@ export class UnderdogFantasySelection {
     return (this.statValue / this.statTargetValue) * 100;
   }
 
+  get gradedBy(): GradedBy {
+    return this.props.gradedBy;
+  }
+
   get result(): SelectionResult {
-    const wonOnStats =
-      (this.choice === 'higher' && this.statValue > this.statTargetValue) ||
-      (this.choice === 'lower' && this.statValue < this.statTargetValue);
-    if (wonOnStats) {
-      return SelectionResult.Won;
+    if (
+      this.gradedBy === GradedBy.HighScore &&
+      this.statValue > this.statTargetValue
+    ) {
+      if (this.choice === 'higher') {
+        return SelectionResult.Won;
+      }
+
+      if (this.choice === 'lower') {
+        return SelectionResult.Lost;
+      }
     }
 
     return this.props.result;
