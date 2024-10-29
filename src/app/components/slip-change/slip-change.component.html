@@ -6,6 +6,7 @@
       <span> 
         <span *ngIf="slipChange.newStatus === SelectionResult.Won" style="color: green"> WON </span>
         <span *ngIf="slipChange.newStatus === SelectionResult.Lost" style="color: red"> LOST </span>
+        <span *ngIf="slipChange.newStatus === SelectionResult.Pushed" style="color: orange"> PUSHED </span>
         their
       </span>
       <span>
