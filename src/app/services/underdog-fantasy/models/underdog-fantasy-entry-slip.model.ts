@@ -153,7 +153,8 @@ export class UnderdogFantasyEntrySlip {
             matchProgress: game.match_progress,
             stat: overUnder.appearance_stat.stat,
             statDisplay: overUnder.appearance_stat.display_stat,
-            statTargetValue: line.stat_value,
+            statTargetValue:
+              selectionDto.discounted_line_value ?? line.stat_value,
             statValue:
               appearance.stat_line?.data[overUnder.appearance_stat.stat] ??
               null,

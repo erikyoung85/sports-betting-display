@@ -88,6 +88,13 @@ export class UnderdogFantasySelection {
   }
 
   get result(): SelectionResult {
+    const wonOnStats =
+      (this.choice === 'higher' && this.statValue > this.statTargetValue) ||
+      (this.choice === 'lower' && this.statValue < this.statTargetValue);
+    if (wonOnStats) {
+      return SelectionResult.Won;
+    }
+
     return this.props.result;
   }
 

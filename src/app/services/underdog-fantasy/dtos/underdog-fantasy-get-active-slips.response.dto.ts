@@ -94,7 +94,7 @@ export interface UnderdogFantasyGetActiveSlipsResponseDto {
         actual_stat_value: null;
         admin_graded: boolean;
         created_at: string;
-        discounted_line_value: null;
+        discounted_line_value: string | null;
         in_play: boolean;
         option_id: string;
         option_type: EntryOptionType;
