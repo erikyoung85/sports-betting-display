@@ -8,7 +8,8 @@ $theme: mat.define-theme();
         @include mat.elevation(24, 'green');
     }
     mat-progress-bar {
-        --mdc-linear-progress-active-indicator-color: green;
+        --mdc-linear-progress-active-indicator-color: rgb(0, 128, 0);
+        --mdc-linear-progress-track-color: rgb(0, 128, 0, .3)
     }
 }
 

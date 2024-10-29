@@ -112,7 +112,10 @@ export class UnderdogFantasyEntrySlip {
         currentMaxPayoutMultiplier: entrySlipDto.current_max_payout_multiplier,
         fee: entrySlipDto.fee,
         freeEntry: entrySlipDto.free_entry,
-        payout: entrySlipDto.payout,
+        payout:
+          (entrySlipDto.state === 'CA'
+            ? entrySlipDto.payout
+            : entrySlipDto.pickem_pool_entry?.payout) ?? null,
         boostPayout: entrySlipDto.boost_payout,
         selections: entrySlipDto.selections.map((selectionDto) => {
           const option = optionsDict[selectionDto.option_id];

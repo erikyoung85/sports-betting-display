@@ -59,11 +59,17 @@ export interface UnderdogFantasyGetSettledSlipsResponseDto {
         '4': '0.25';
         default: '0.0';
       };
-      payout: null;
+      payout: string | null;
       payout_option_id: string;
       payout_shifts: string[];
-      pickem_pool_style_id: null;
-      pickem_pool_style_option_id: null;
+      pickem_pool_entry?: {
+        id: string;
+        payout: string;
+        pickem_pool_id: string;
+        pool_entry_count: number;
+      };
+      pickem_pool_style_id: string | null;
+      pickem_pool_style_option_id: string | null;
       power_up: {
         id: string;
         auto_applies: boolean;
