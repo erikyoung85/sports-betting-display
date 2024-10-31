@@ -1,0 +1,12 @@
+.user-card-scroll-container {
+    display: flex; 
+    flex-direction: row; 
+    gap: 8px; 
+    overflow-x: scroll; 
+    padding: 1rem;
+    ::-webkit-scrollbar {
+        display: none;
+    }
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

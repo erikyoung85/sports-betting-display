@@ -15,7 +15,7 @@
 
   <mat-card-content 
     *ngIf="(users$ | async) as users"
-    style="display: flex; flex-direction: row; gap: 8px; overflow-x: scroll; padding: 1rem;"
+    class="user-card-scroll-container"
   >
 
     <app-user-card *ngFor="let user of users" [user]="user" (click)="onCardClick(user)" style="cursor: pointer" [elliotMode]="elliotMode"></app-user-card>
