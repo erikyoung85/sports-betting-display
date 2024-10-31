@@ -1,13 +1,16 @@
 import {
   AfterViewInit,
   Component,
+  ContentChild,
   ElementRef,
   Input,
   OnChanges,
   OnDestroy,
   SimpleChanges,
+  TemplateRef,
   ViewChild,
 } from '@angular/core';
+import { AutoScrollDirectiveDirective } from '../../directives/auto-scroll-directive.directive';
 
 const SCROLL_AMOUNT = 1;
 
@@ -20,6 +23,8 @@ export class AutoScrollComponent
   implements AfterViewInit, OnDestroy, OnChanges
 {
   @ViewChild('scrollContainer', { static: true }) scrollContainer!: ElementRef;
+  @ContentChild(AutoScrollDirectiveDirective, { read: TemplateRef })
+  transcludeTemplate!: TemplateRef<HTMLElement>;
 
   @Input() autoScrollEnabled = true;
 
@@ -36,7 +41,10 @@ export class AutoScrollComponent
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['autoScrollEnabled']) {
+    if (
+      changes['autoScrollEnabled'] &&
+      !changes['autoScrollEnabled'].isFirstChange()
+    ) {
       if (this.autoScrollEnabled) {
         this.startAutoScroll();
       } else {

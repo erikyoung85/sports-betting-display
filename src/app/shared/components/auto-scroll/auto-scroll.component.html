@@ -1,4 +1,17 @@
 <div #scrollContainer class="scroll-container">
   <!-- Your content here -->
-   <ng-content></ng-content>
+  <ng-template *ngTemplateOutlet="startBanner"></ng-template>
+  <ng-template *ngTemplateOutlet="transcludeTemplate"></ng-template>
+  <ng-template *ngTemplateOutlet="startBanner"></ng-template>
+  <ng-template *ngTemplateOutlet="transcludeTemplate"></ng-template>
 </div>
+
+<ng-template #startBanner>
+  <div style="display: flex; flex-direction: column; justify-content: space-evenly; width: 10px; background-color: purple; padding: 4px; margin: 4px; color: white; border-radius: 4px;">
+    <div>S</div>
+    <div>T</div>
+    <div>A</div>
+    <div>R</div>
+    <div>T</div>
+  </div>
+</ng-template>
