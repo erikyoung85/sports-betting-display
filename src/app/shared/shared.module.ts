@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { AutoScrollComponent } from './components/auto-scroll/auto-scroll.component';
 import { Loop2Component } from './components/loop-2/loop-2.component';
 import { LoopComponent } from './components/loop/loop.component';
 import { ScrollChildComponent } from './components/scroll-child/scroll-child.component';
@@ -14,6 +15,7 @@ import { MoneyPipe } from './pipes/money.pipe';
     ScrollChildComponent,
     LoopComponent,
     Loop2Component,
+    AutoScrollComponent,
   ],
   exports: [
     MoneyPipe,
@@ -21,6 +23,7 @@ import { MoneyPipe } from './pipes/money.pipe';
     ScrollChildComponent,
     LoopComponent,
     Loop2Component,
+    AutoScrollComponent,
   ],
 })
 export class SharedModule {}
