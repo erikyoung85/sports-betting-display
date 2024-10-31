@@ -37,6 +37,7 @@ import { SlipChangeComponent } from './components/slip-change/slip-change.compon
 import { SlipResultPayoutChipComponent } from './components/slip-result-payout-chip/slip-result-payout-chip.component';
 import { SlipUserChipsComponent } from './components/slip-user-chips/slip-user-chips.component';
 import { UserCardComponent } from './components/user-manager/user-card/user-card.component';
+import { ConfirmDeleteUserComponent } from './components/user-manager/user-form/confirm-delete-user/confirm-delete-user.component';
 import { UnderdogLoginFormComponent } from './components/user-manager/user-form/underdog-login-form/underdog-login-form.component';
 import { UserFormComponent } from './components/user-manager/user-form/user-form.component';
 import { UserManagerComponent } from './components/user-manager/user-manager.component';
@@ -61,6 +62,7 @@ import { SharedModule } from './shared/shared.module';
     UnderdogLoginFormComponent,
     SlipChangeComponent,
     ShareLinkButtonComponent,
+    ConfirmDeleteUserComponent,
   ],
   imports: [
     BrowserModule,

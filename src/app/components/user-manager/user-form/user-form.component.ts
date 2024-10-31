@@ -7,13 +7,18 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+  MAT_DIALOG_DATA,
+  MatDialog,
+  MatDialogRef,
+} from '@angular/material/dialog';
 import { map, Observable, of, take } from 'rxjs';
 import {
   UnderdogUserInfo,
   User,
 } from '../../../services/user/models/user.model';
 import { UserService } from '../../../services/user/user.service';
+import { ConfirmDeleteUserComponent } from './confirm-delete-user/confirm-delete-user.component';
 
 interface UserForm {
   username: FormControl<string | null>;
@@ -31,6 +36,7 @@ export class UserFormComponent {
   constructor(
     public dialogRef: MatDialogRef<UserFormComponent>,
     private readonly userService: UserService,
+    private readonly dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public user?: User
   ) {}
 
@@ -114,8 +120,14 @@ export class UserFormComponent {
 
   onDeleteUser(): void {
     if (this.user) {
-      this.userService.removeUser(this.user);
-      this.dialogRef.close(this.userForm.value);
+      const dialogRef = this.dialog.open(ConfirmDeleteUserComponent, {
+        data: this.user,
+      });
+      dialogRef.afterClosed().subscribe((result: boolean) => {
+        if (result === true) {
+          this.dialogRef.close(this.userForm.value);
+        }
+      });
     }
   }
 }

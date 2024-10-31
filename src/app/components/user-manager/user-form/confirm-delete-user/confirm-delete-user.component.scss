@@ -1,0 +1,16 @@
+@use '@angular/material' as mat;
+
+$theme: mat.define-theme();
+
+
+
+.user-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 5px;
+    padding: 8px;
+    line-height: normal;
+    @include mat.elevation(2);
+}

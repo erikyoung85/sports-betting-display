@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>Are you sure you want to remove this user?</h2>
+<mat-dialog-content>
+  <div>Removing this user will not affect your underdog account at all, you will just not be able to see this user in the app anymore.</div>
+  
+  <mat-form-field>
+    <mat-label>Password</mat-label>
+    <input matInput type="password" [formControl]="passwordControl">
+    <mat-error *ngIf="passwordControl.hasError('error')">{{ passwordControl.getError('error') }}</mat-error>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button (click)="onConfirm()">Confirm</button>
+</mat-dialog-actions>

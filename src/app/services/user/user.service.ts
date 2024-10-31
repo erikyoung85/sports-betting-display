@@ -5,6 +5,7 @@ import { BehaviorSubject, lastValueFrom, map } from 'rxjs';
 import { LocalStorageService } from '../local-storage/local-storage.service';
 import { GetUserResponseDto } from './dtos/get-user.response.dto';
 import { PostUserRequestDto } from './dtos/post-user.request.dto';
+import { RemoveUserRequestDto } from './dtos/remove-user.request.dto';
 import { createUserFromDto, User } from './models/user.model';
 
 export type UserDict = {
@@ -128,7 +129,28 @@ export class UserService {
     this._userDict$.next(userDict);
   }
 
-  async removeUser(user: User): Promise<void> {}
+  async removeUser(
+    user: User,
+    adminPassword: string
+  ): Promise<{ success: boolean } | Error> {
+    const userRequestDto: RemoveUserRequestDto = {
+      username: user.username,
+      admin_password: adminPassword,
+    };
+    const responseDtoOrError = await lastValueFrom(
+      this.http.post<GetUserResponseDto>('/api/removeUser', userRequestDto)
+    ).catch((error: HttpErrorResponse) => error);
+    if (responseDtoOrError instanceof HttpErrorResponse) {
+      console.error('remove user failed, user:', user);
+      return new Error(responseDtoOrError.error);
+    }
+
+    const userDict = { ...this._userDict$.value };
+    delete userDict[user.username];
+
+    this._userDict$.next(userDict);
+    return { success: true };
+  }
 
   constructor(
     private readonly localStorage: LocalStorageService,
