@@ -32,6 +32,7 @@ import { AddUserToSlipComponent } from './components/add-user-to-slip/add-user-t
 import { SelectionRowComponent } from './components/selection-row/selection-row.component';
 import { SelectionStatusIconComponent } from './components/selection-status-icon/selection-status-icon.component';
 import { SettledEntriesComponent } from './components/settled-entries/settled-entries.component';
+import { ShareLinkButtonComponent } from './components/share-link-button/share-link-button.component';
 import { SlipChangeComponent } from './components/slip-change/slip-change.component';
 import { SlipResultPayoutChipComponent } from './components/slip-result-payout-chip/slip-result-payout-chip.component';
 import { SlipUserChipsComponent } from './components/slip-user-chips/slip-user-chips.component';
@@ -59,6 +60,7 @@ import { SharedModule } from './shared/shared.module';
     AddUserToSlipComponent,
     UnderdogLoginFormComponent,
     SlipChangeComponent,
+    ShareLinkButtonComponent,
   ],
   imports: [
     BrowserModule,

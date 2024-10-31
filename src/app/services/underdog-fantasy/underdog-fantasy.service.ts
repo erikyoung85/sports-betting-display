@@ -24,6 +24,7 @@ import {
   mergeUnderdogFantasySlipDtos,
   UnderdogFantasyGetSettledSlipsResponseDto,
 } from './dtos/underdog-fantasy-get-settled-slips.response.dto';
+import { UnderdogFantasyGetShareLinkResponseDto } from './dtos/underdog-fantasy-get-share-link.response.dto';
 import { EntryStatus } from './enums/entry-status.enum';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
 
@@ -321,6 +322,34 @@ export class UnderdogFantasyService {
 
     // save new value
     this._slipToAdditionalUsers$.next(slipIdToUsernames);
+  }
+
+  async getShareLink(
+    user: User,
+    entrySlipId: string
+  ): Promise<UnderdogFantasyGetShareLinkResponseDto | Error> {
+    const token = await this.getUnderdogToken(user);
+    if (token === undefined) new Error('No auth token found');
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    const response = await lastValueFrom(
+      this.http.post<UnderdogFantasyGetShareLinkResponseDto>(
+        `${this.baseUrl}/v1/entry_slips/${entrySlipId}/share_link`,
+        {},
+        {
+          headers: headers,
+        }
+      )
+    ).catch((err: HttpErrorResponse) => err);
+
+    if (response instanceof HttpErrorResponse) {
+      return new Error(response.error);
+    }
+
+    return response;
   }
 
   private async getUnderdogToken(
