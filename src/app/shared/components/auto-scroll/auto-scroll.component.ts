@@ -63,10 +63,7 @@ export class AutoScrollComponent
 
     this.scrollInterval = setInterval(() => {
       // Check if we've reached the end of the scroll container
-      if (
-        container.scrollLeft + container.clientWidth >=
-        container.scrollWidth
-      ) {
+      if (container.scrollLeft >= container.scrollWidth / 2) {
         container.scrollLeft = 0; // Reset to start
       } else {
         container.scrollLeft += SCROLL_AMOUNT; // Scroll by a small amount
