@@ -1,0 +1,61 @@
+
+.Loop {
+  position: relative;
+  width: 100%;
+  display: flex; /* Align sections horizontally */
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.child {
+  flex: 0 0 auto;
+  width: 100vw; /* Each section takes the full viewport width */
+  position: relative;
+  text-align: center;
+  min-width: 300px;
+  max-width: 700px;
+  margin: 20px;
+}
+
+::scrollbar {
+  display: none;
+}
+
+body {
+  font-family: "Avenir Next", Helvetica, sans-serif;
+  font-weight: normal;
+  font-size: 100%;
+}
+
+.red {
+  background: #FF4136;
+}
+
+.green {
+  background: #2ECC40;
+}
+
+.blue {
+  background: #0074D9;
+}
+
+.orange {
+  background: rebeccapurple;
+}
+
+h1 {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  font-size: 80px;
+  letter-spacing: 5px;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.is-clone {
+    background-color: pink;
+}

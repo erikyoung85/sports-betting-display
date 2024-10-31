@@ -19,6 +19,8 @@ export class ActiveEntriesComponent {
     private readonly userService: UserService
   ) {}
 
+  autoScroll = true;
+
   activeSlips$ = combineLatest([
     this.underdogFantasyService.activeSlipsByUsername$,
     this.userService.userDict$,
@@ -35,6 +37,10 @@ export class ActiveEntriesComponent {
       );
     })
   );
+
+  onAutoScrollToggleChange(): void {
+    this.autoScroll = !this.autoScroll;
+  }
 
   onMoreClicked(slip: UnderdogFantasyEntrySlip): void {
     this.dialog.open(AddUserToSlipComponent, { data: slip });

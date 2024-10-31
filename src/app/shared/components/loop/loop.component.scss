@@ -1,0 +1,57 @@
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}
+
+.Loop {
+  display: flex;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  white-space: nowrap;
+}
+
+.wrapper {
+  display: inline-block;
+  text-align: center;
+  min-width: 300px;
+  max-width: 700px;
+  width: 80%;
+  height: 100%;
+}
+
+body {
+  font-family: "Avenir Next", Helvetica, sans-serif;
+  font-weight: normal;
+  font-size: 100%;
+}
+
+.red {
+  background: #FF4136;
+}
+
+.green {
+  background: #2ECC40;
+}
+
+.blue {
+  background: #0074D9;
+}
+
+.orange {
+  background: rebeccapurple;
+}
+
+h1 {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  font-size: 80px;
+  letter-spacing: 5px;
+  color: #fff;
+  text-transform: uppercase;
+}
