@@ -6,7 +6,11 @@
 
     <div *ngIf="(settledSlips$ | async)?.length === 0">No settled bets</div>
 
-    <div *ngIf="((settledSlips$ | async) ?? []) as slips" style="padding: .25rem; display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; align-items: flex-start; overflow-x: scroll">
+    <div 
+      *ngIf="((settledSlips$ | async) ?? []) as slips" 
+      style="padding: .25rem; display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; align-items: flex-start; overflow-x: scroll" 
+      class="hide-scroll-bar"
+    >
       <mat-card 
         *ngFor="let slip of slips" 
         [ngClass]="{ 
