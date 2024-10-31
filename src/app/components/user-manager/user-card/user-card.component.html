@@ -1,5 +1,5 @@
 <mat-card>
-  <mat-card-header style="display: flex; flex-direction: row; gap: 4px; align-items: center;">
+  <mat-card-header style="display: flex; flex-direction: row; gap: 4px; align-items: center; text-wrap: nowrap">
     <mat-card-title style="font-size: 14px">{{ user.firstName }} {{ user.lastName }}</mat-card-title>
     <mat-slide-toggle [checked]="user.enabled" (toggleChange)="onToggleUser()" (click)="$event.stopPropagation()"></mat-slide-toggle>
   </mat-card-header>
