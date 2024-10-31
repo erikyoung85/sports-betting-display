@@ -29,7 +29,7 @@ export class UserManagerComponent {
     )
   );
 
-  elliotMode = false;
+  shouldRightAlign = false;
 
   onAddUser(): void {
     this.dialog.open(UserFormComponent);
@@ -39,7 +39,7 @@ export class UserManagerComponent {
     this.dialog.open(UserFormComponent, { data: user });
   }
 
-  onElliotModeToggleChange(): void {
-    this.elliotMode = !this.elliotMode;
+  onRightAlign(): void {
+    this.shouldRightAlign = !this.shouldRightAlign;
   }
 }
