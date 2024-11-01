@@ -22,6 +22,13 @@ export interface IUnderdogFantasyEntrySlip {
   createdAt: Date;
   shareLink: string | null;
   entryType: EntryType;
+  insuranceFallbacks:
+    | {
+        current_max_payout_multiplier: string;
+        initial_max_payout_multiplier: string;
+        loss_count: number;
+      }[]
+    | null;
 }
 
 export class UnderdogFantasyEntrySlip {
@@ -87,6 +94,26 @@ export class UnderdogFantasyEntrySlip {
 
   get entryType(): EntryType {
     return this.props.entryType;
+  }
+
+  get insuranceFallbacks(): {
+    initialMaxPayoutMultiplier: number;
+    currentMaxPayoutMultiplier: number;
+    lossCount: number;
+  }[] {
+    return (this.props.insuranceFallbacks ?? []).map((insuranceFallback) => ({
+      initialMaxPayoutMultiplier: Number(
+        insuranceFallback.initial_max_payout_multiplier
+      ),
+      currentMaxPayoutMultiplier: Number(
+        insuranceFallback.current_max_payout_multiplier
+      ),
+      lossCount: insuranceFallback.loss_count,
+    }));
+  }
+
+  get isFlexPlay(): boolean {
+    return this.insuranceFallbacks.length > 0;
   }
 
   constructor(private readonly props: IUnderdogFantasyEntrySlip) {
@@ -180,6 +207,7 @@ export class UnderdogFantasyEntrySlip {
         createdAt: new Date(entrySlipDto.selections[0].created_at),
         shareLink: entrySlipDto.share_link,
         entryType: entrySlipDto.type,
+        insuranceFallbacks: entrySlipDto.insurance_fallbacks,
       });
     });
   }

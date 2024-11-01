@@ -52,7 +52,13 @@ export interface UnderdogFantasyGetSettledSlipsResponseDto {
       fee: string;
       free_entry: boolean;
       initial_max_payout_multiplier: string;
-      insurance_fallbacks: null;
+      insurance_fallbacks:
+        | {
+            current_max_payout_multiplier: string;
+            initial_max_payout_multiplier: string;
+            loss_count: number;
+          }[]
+        | null;
       insured: boolean;
       minimum_shift_configuration: {
         '2': '0.75';
