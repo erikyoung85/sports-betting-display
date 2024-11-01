@@ -10,6 +10,7 @@ import {
   TemplateRef,
   ViewChild,
 } from '@angular/core';
+import { BehaviorSubject, distinctUntilChanged } from 'rxjs';
 import { AutoScrollDirectiveDirective } from '../../directives/auto-scroll-directive.directive';
 
 const SCROLL_AMOUNT = 1;
@@ -28,18 +29,17 @@ export class AutoScrollComponent
 
   @Input() autoScrollEnabled = true;
 
-  numCopies = 0;
+  _numCopies$ = new BehaviorSubject<number>(0);
+  numCopies$ = this._numCopies$.asObservable().pipe(distinctUntilChanged());
 
   private autoScrollStarted = false;
   private scrollInterval: any;
 
   ngAfterViewInit(): void {
-    this.calcAndResize();
     this.startAutoScroll();
   }
 
   ngOnDestroy() {
-    // Clear interval when the component is destroyed
     this.stopAutoScroll();
   }
 
@@ -57,7 +57,7 @@ export class AutoScrollComponent
   }
 
   calcAndResize() {
-    this.numCopies = this.getNumCopies();
+    this._numCopies$.next(this.autoScrollEnabled ? this.getNumCopies() : 0);
   }
 
   startAutoScroll() {
@@ -72,9 +72,10 @@ export class AutoScrollComponent
       this.calcAndResize();
 
       // Check if we've reached the end of the scroll container
+      const numCopies = this._numCopies$.value;
       if (
-        this.numCopies > 0 &&
-        container.scrollLeft >= container.scrollWidth / (this.numCopies + 1)
+        numCopies > 0 &&
+        container.scrollLeft >= container.scrollWidth / (numCopies + 1)
       ) {
         container.scrollLeft = 0; // Reset to start
       } else {
@@ -86,6 +87,7 @@ export class AutoScrollComponent
   stopAutoScroll() {
     this.autoScrollStarted = false;
 
+    this.calcAndResize();
     if (this.scrollInterval) {
       clearInterval(this.scrollInterval);
     }

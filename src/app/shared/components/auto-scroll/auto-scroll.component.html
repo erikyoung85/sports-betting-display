@@ -1,8 +1,8 @@
 <div #scrollContainer class="scroll-container">
-  
+
   <ng-template *ngTemplateOutlet="element"></ng-template>
 
-  <ng-container *ngFor="let _ of [].constructor(numCopies)">
+  <ng-container *ngFor="let _ of [].constructor((numCopies$ | async) ?? 0)">
     <ng-template *ngTemplateOutlet="element"></ng-template>
   </ng-container>
 </div>
