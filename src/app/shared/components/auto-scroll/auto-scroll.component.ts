@@ -28,10 +28,13 @@ export class AutoScrollComponent
 
   @Input() autoScrollEnabled = true;
 
+  numCopies = 0;
+
   private autoScrollStarted = false;
   private scrollInterval: any;
 
   ngAfterViewInit(): void {
+    this.calcAndResize();
     this.startAutoScroll();
   }
 
@@ -53,6 +56,10 @@ export class AutoScrollComponent
     }
   }
 
+  calcAndResize() {
+    this.numCopies = this.getNumCopies();
+  }
+
   startAutoScroll() {
     if (this.autoScrollStarted) {
       return;
@@ -62,8 +69,13 @@ export class AutoScrollComponent
     const container = this.scrollContainer.nativeElement;
 
     this.scrollInterval = setInterval(() => {
+      this.calcAndResize();
+
       // Check if we've reached the end of the scroll container
-      if (container.scrollLeft >= container.scrollWidth / 2) {
+      if (
+        this.numCopies > 0 &&
+        container.scrollLeft >= container.scrollWidth / (this.numCopies + 1)
+      ) {
         container.scrollLeft = 0; // Reset to start
       } else {
         container.scrollLeft += SCROLL_AMOUNT; // Scroll by a small amount
@@ -77,5 +89,16 @@ export class AutoScrollComponent
     if (this.scrollInterval) {
       clearInterval(this.scrollInterval);
     }
+  }
+
+  getNumCopies(): number {
+    const containerWidth = this.scrollContainer.nativeElement.offsetWidth;
+    const elementWidth =
+      this.scrollContainer.nativeElement.children?.[0]?.offsetWidth ??
+      containerWidth;
+
+    if (elementWidth <= containerWidth) return 0;
+
+    return 1;
   }
 }
