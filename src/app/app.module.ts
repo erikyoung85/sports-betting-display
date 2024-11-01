@@ -29,6 +29,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ActiveEntriesComponent } from './components/active-entries/active-entries.component';
 import { AddUserToSlipComponent } from './components/add-user-to-slip/add-user-to-slip.component';
+import { EntryTypeChipComponent } from './components/entry-type-chip/entry-type-chip.component';
 import { SelectionRowComponent } from './components/selection-row/selection-row.component';
 import { SelectionStatusIconComponent } from './components/selection-status-icon/selection-status-icon.component';
 import { SettledEntriesComponent } from './components/settled-entries/settled-entries.component';
@@ -63,6 +64,7 @@ import { SharedModule } from './shared/shared.module';
     SlipChangeComponent,
     ShareLinkButtonComponent,
     ConfirmDeleteUserComponent,
+    EntryTypeChipComponent,
   ],
   imports: [
     BrowserModule,

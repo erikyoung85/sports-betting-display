@@ -1,5 +1,6 @@
 import { EntryOptionType } from '../enums/entry-option-type.enum';
 import { EntryStatus } from '../enums/entry-status.enum';
+import { EntryType } from '../enums/entry-type.enum';
 import { GameStatus } from '../enums/game-status.enum';
 import { GradedBy } from '../enums/graded-by.enum';
 import { LineType } from '../enums/line-type.enum';
@@ -118,7 +119,7 @@ export interface UnderdogFantasyGetSettledSlipsResponseDto {
       share_link: string;
       state: string;
       status: EntryStatus;
-      type: string;
+      type: EntryType;
     }[];
     games: {
       id: number;

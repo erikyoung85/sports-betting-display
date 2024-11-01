@@ -2,6 +2,7 @@ import { keyBy } from 'lodash';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from '../dtos/underdog-fantasy-get-active-slips.response.dto';
 import { UnderdogFantasyGetSettledSlipsResponseDto } from '../dtos/underdog-fantasy-get-settled-slips.response.dto';
 import { EntryStatus } from '../enums/entry-status.enum';
+import { EntryType } from '../enums/entry-type.enum';
 import { SelectionResult } from '../enums/selection-result.enum';
 import {
   IUnderdogFantasySelection,
@@ -20,6 +21,7 @@ export interface IUnderdogFantasyEntrySlip {
   status: EntryStatus;
   createdAt: Date;
   shareLink: string | null;
+  entryType: EntryType;
 }
 
 export class UnderdogFantasyEntrySlip {
@@ -81,6 +83,10 @@ export class UnderdogFantasyEntrySlip {
 
   get shareLink(): string | undefined {
     return this.props.shareLink ?? undefined;
+  }
+
+  get entryType(): EntryType {
+    return this.props.entryType;
   }
 
   constructor(private readonly props: IUnderdogFantasyEntrySlip) {
@@ -173,6 +179,7 @@ export class UnderdogFantasyEntrySlip {
         status: entrySlipDto.status,
         createdAt: new Date(entrySlipDto.selections[0].created_at),
         shareLink: entrySlipDto.share_link,
+        entryType: entrySlipDto.type,
       });
     });
   }
