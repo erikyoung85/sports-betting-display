@@ -9,7 +9,9 @@
 
 <ng-template #element>
   <div style="display: flex; flex-direction: row;">
-    <ng-template *ngTemplateOutlet="startBanner"></ng-template>
+    <ng-container *ngIf="autoScrollEnabled">
+      <ng-template *ngTemplateOutlet="startBanner"></ng-template>
+    </ng-container>
     <ng-template *ngTemplateOutlet="transcludeTemplate"></ng-template>
   </div>
 </ng-template>

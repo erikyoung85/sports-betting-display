@@ -36,7 +36,7 @@ export class AutoScrollComponent
   private scrollInterval: any;
 
   ngAfterViewInit(): void {
-    this.startAutoScroll();
+    if (this.autoScrollEnabled) this.startAutoScroll();
   }
 
   ngOnDestroy() {
