@@ -12,7 +12,7 @@
       class="hide-scroll-bar"
     >
       <mat-card 
-        *ngFor="let slip of slips" 
+        *ngFor="let slip of slips; trackBy: trackBySlipId" 
         [ngClass]="{ 
           'slip-won': slip.result === SelectionResult.Won,
           'slip-lost': slip.result === SelectionResult.Lost,

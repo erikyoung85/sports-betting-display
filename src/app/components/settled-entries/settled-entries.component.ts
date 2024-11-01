@@ -54,4 +54,8 @@ export class SettledEntriesComponent {
     event.stopPropagation();
     this.dialog.open(AddUserToSlipComponent, { data: slip });
   }
+
+  trackBySlipId(index: number, slip: UnderdogFantasyEntrySlip): string {
+    return slip.id;
+  }
 }
