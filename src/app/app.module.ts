@@ -12,6 +12,7 @@ import {
 } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatCommonModule } from '@angular/material/core';
@@ -87,6 +88,7 @@ import { SharedModule } from './shared/shared.module';
     MatMenuModule,
     MatSlideToggleModule,
     OverlayModule,
+    MatButtonToggleModule,
   ],
   providers: [
     provideClientHydration(),

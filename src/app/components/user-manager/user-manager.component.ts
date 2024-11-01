@@ -1,10 +1,16 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { interval, map, withLatestFrom } from 'rxjs';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
 import { User } from '../../services/user/models/user.model';
 import { UserService } from '../../services/user/user.service';
 import { UserFormComponent } from './user-form/user-form.component';
+
+enum CardAlignment {
+  Left = 'left',
+  Right = 'right',
+}
 
 @Component({
   selector: 'app-user-manager',
@@ -29,7 +35,8 @@ export class UserManagerComponent {
     )
   );
 
-  shouldRightAlign = false;
+  CardAlignment = CardAlignment;
+  selectedCardAlignment = new FormControl<CardAlignment>(CardAlignment.Left);
 
   onAddUser(): void {
     this.dialog.open(UserFormComponent);
@@ -37,9 +44,5 @@ export class UserManagerComponent {
 
   onCardClick(user: User) {
     this.dialog.open(UserFormComponent, { data: user });
-  }
-
-  onRightAlign(): void {
-    this.shouldRightAlign = !this.shouldRightAlign;
   }
 }
