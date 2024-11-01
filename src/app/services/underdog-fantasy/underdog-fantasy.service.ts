@@ -4,7 +4,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { isEqual } from 'lodash';
+import { isEqual, keyBy } from 'lodash';
 import {
   BehaviorSubject,
   combineLatest,
@@ -143,7 +143,7 @@ export class UnderdogFantasyService {
     interval(30000)
       .pipe(withLatestFrom(this.userService.users$))
       .subscribe(([_, users]) => {
-        this.getAllSlipsForUsers(users);
+        this.getAllSlipsForUsers(users, false);
       });
 
     // if the user list changes, get all slips for all users
@@ -155,23 +155,38 @@ export class UnderdogFantasyService {
         )
       )
       .subscribe((userDict) => {
-        this.getAllSlipsForUsers(Object.values(userDict));
+        this.getAllSlipsForUsers(Object.values(userDict), true);
       });
 
     // get group slips data
     this.getSlipToAdditionalUsers();
   }
 
-  async getAllSlipsForUsers(users: User[]): Promise<void> {
+  async getAllSlipsForUsers(
+    users: User[],
+    refreshAllSettled: boolean
+  ): Promise<void> {
     const validUsers = users.filter(
-      (user) => user.underdogUserInfo?.authError === false
+      (user) => user.underdogUserInfo?.authError === false && user.enabled
     );
     if (validUsers.length === 0) return;
 
     Promise.all(
       validUsers.map(async (user) => {
         // get settled slips for user
-        const settledSlips = await this.getSettledSlips(user);
+        let settledSlips =
+          (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
+
+        // override existing settled slips if necessary
+        if (!refreshAllSettled) {
+          const existingSettledSlips =
+            this._settledSlipsByUsername$.value[user.username] ?? [];
+          settledSlips = Object.values(
+            keyBy([...existingSettledSlips, ...settledSlips], (slip) => slip.id)
+          );
+        }
+
+        // save settled slips for user
         this._settledSlipsByUsername$.next({
           ...this._settledSlipsByUsername$.value,
           [user.username]: settledSlips,
@@ -179,6 +194,7 @@ export class UnderdogFantasyService {
 
         // get active slips for user
         const activeSlips = await this.getActiveSlips(user);
+        // save active slips for user
         this._activeSlipsByUsername$.next({
           ...this._activeSlipsByUsername$.value,
           [user.username]: activeSlips,
@@ -188,7 +204,8 @@ export class UnderdogFantasyService {
   }
 
   private async getSettledSlips(
-    user: User
+    user: User,
+    allPages: boolean = true
   ): Promise<UnderdogFantasyEntrySlip[] | undefined> {
     const token = await this.getUnderdogToken(user);
     if (token === undefined) return;
@@ -221,7 +238,7 @@ export class UnderdogFantasyService {
       }
 
       allDtos.push(settledSlipsDto);
-      nextPage = settledSlipsDto.meta.next;
+      nextPage = allPages ? settledSlipsDto.meta.next : null;
     }
 
     const mergedDto = mergeUnderdogFantasySlipDtos(allDtos);
