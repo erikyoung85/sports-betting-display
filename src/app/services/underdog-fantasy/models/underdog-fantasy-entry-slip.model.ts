@@ -191,7 +191,7 @@ export class UnderdogFantasyEntrySlip {
             choiceDisplay: option.choice_display,
             liveEvent: line.live_event,
             liveEventStat: line.live_event_stat,
-            matchProgress: game.match_progress,
+            matchProgress: game?.match_progress,
             stat: overUnder.appearance_stat.stat,
             statDisplay: overUnder.appearance_stat.display_stat,
             statTargetValue:
