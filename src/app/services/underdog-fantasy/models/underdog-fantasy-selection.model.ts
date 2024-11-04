@@ -33,6 +33,10 @@ export class UnderdogFantasySelection {
     return this.props.id;
   }
 
+  get optionId(): string {
+    return this.props.optionId;
+  }
+
   get title(): string {
     return this.props.title;
   }

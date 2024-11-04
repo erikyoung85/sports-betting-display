@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { take } from 'rxjs';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnInit,
+} from '@angular/core';
+import { isEqual } from 'lodash';
+import { distinctUntilChanged, map, Observable, take } from 'rxjs';
+import { TailedBetInfo } from '../../services/underdog-fantasy/models/tailed-bet-info.model';
 import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
 
@@ -9,7 +16,7 @@ import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog
   styleUrls: ['./share-link-button.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ShareLinkButtonComponent {
+export class ShareLinkButtonComponent implements OnInit {
   constructor(
     private readonly underdogFantasyService: UnderdogFantasyService
   ) {}
@@ -18,6 +25,15 @@ export class ShareLinkButtonComponent {
 
   shareLinkLoading = false;
   shareLinkErrorMsg: string | undefined = undefined;
+
+  tailedBetInfo$!: Observable<TailedBetInfo | undefined>;
+
+  ngOnInit(): void {
+    this.tailedBetInfo$ = this.underdogFantasyService.tailedBetsDict$.pipe(
+      map((tailedBetsDict) => tailedBetsDict[this.slip.id]),
+      distinctUntilChanged((prev, curr) => isEqual(prev, curr))
+    );
+  }
 
   onTailBetClicked(): void {
     this.shareLinkErrorMsg = undefined;

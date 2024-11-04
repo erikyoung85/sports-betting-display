@@ -4,7 +4,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { isEqual, keyBy } from 'lodash';
+import { groupBy, isEqual, keyBy } from 'lodash';
 import {
   BehaviorSubject,
   combineLatest,
@@ -26,6 +26,7 @@ import {
 } from './dtos/underdog-fantasy-get-settled-slips.response.dto';
 import { UnderdogFantasyGetShareLinkResponseDto } from './dtos/underdog-fantasy-get-share-link.response.dto';
 import { EntryStatus } from './enums/entry-status.enum';
+import { TailedBetInfo } from './models/tailed-bet-info.model';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
 
 type SlipToAdditionalUsernames = { [slipId: string]: string[] };
@@ -135,6 +136,55 @@ export class UnderdogFantasyService {
     distinctUntilChanged((prev, curr) => isEqual(prev, curr))
   );
 
+  readonly tailedBetsDict$ = combineLatest([
+    this.activeSlipsByUsername$,
+    this.settledSlipsByUsername$,
+    this.slipToOriginalUser$,
+  ]).pipe(
+    map(([activeSlipsByUsername, settledSlipsByUsername, slipToUser]) => {
+      const allSlips = [
+        ...Object.values(activeSlipsByUsername).flatMap(
+          (slipOrEmpty) => slipOrEmpty ?? []
+        ),
+        ...Object.values(settledSlipsByUsername).flatMap(
+          (slipOrEmpty) => slipOrEmpty ?? []
+        ),
+      ];
+
+      const groupedBetsDict = groupBy(allSlips, (slip) =>
+        slip.selections.map((selection) => selection.optionId)
+      );
+      const groupedBets = Object.values(groupedBetsDict).filter(
+        (group) => group.length > 1
+      );
+
+      const tailedBetsDict: {
+        [slipId: string]: TailedBetInfo;
+      } = {};
+      groupedBets.forEach((group) => {
+        const sortedGroup = group.sort(
+          (a, b) => a.createdAt.getTime() - b.createdAt.getTime()
+        );
+        const originalSlip = sortedGroup[0];
+        const originalUser = slipToUser[originalSlip.id];
+        const tailedUsers = sortedGroup
+          .slice(1)
+          .map((slip) => slipToUser[slip.id])
+          .filter((user) => user !== undefined);
+
+        if (originalUser === undefined || tailedUsers.length === 0) return;
+
+        tailedBetsDict[originalSlip.id] = {
+          slipId: originalSlip.id,
+          originalUsername: originalUser.username,
+          tailedByUsernames: tailedUsers.map((user) => user.username),
+        };
+      });
+
+      return tailedBetsDict;
+    })
+  );
+
   constructor(
     private readonly http: HttpClient,
     private readonly userService: UserService
@@ -171,7 +221,14 @@ export class UnderdogFantasyService {
     );
     if (validUsers.length === 0) return;
 
-    Promise.all(
+    const settledSlipsByUsername: {
+      [username: string]: UnderdogFantasyEntrySlip[] | undefined;
+    } = {};
+    const activeSlipsByUsername: {
+      [username: string]: UnderdogFantasyEntrySlip[] | undefined;
+    } = {};
+
+    await Promise.all(
       validUsers.map(async (user) => {
         // get settled slips for user
         let settledSlips =
@@ -180,27 +237,22 @@ export class UnderdogFantasyService {
         // override existing settled slips if necessary
         if (!refreshAllSettled) {
           const existingSettledSlips =
-            this._settledSlipsByUsername$.value[user.username] ?? [];
+            settledSlipsByUsername[user.username] ?? [];
           settledSlips = Object.values(
             keyBy([...existingSettledSlips, ...settledSlips], (slip) => slip.id)
           );
         }
-
-        // save settled slips for user
-        this._settledSlipsByUsername$.next({
-          ...this._settledSlipsByUsername$.value,
-          [user.username]: settledSlips,
-        });
+        settledSlipsByUsername[user.username] = settledSlips;
 
         // get active slips for user
         const activeSlips = await this.getActiveSlips(user);
-        // save active slips for user
-        this._activeSlipsByUsername$.next({
-          ...this._activeSlipsByUsername$.value,
-          [user.username]: activeSlips,
-        });
+        activeSlipsByUsername[user.username] = activeSlips;
       })
-    ).then(() => this._dataLastUpdated$.next(new Date()));
+    );
+
+    this._activeSlipsByUsername$.next(activeSlipsByUsername);
+    this._settledSlipsByUsername$.next(settledSlipsByUsername);
+    this._dataLastUpdated$.next(new Date());
   }
 
   private async getSettledSlips(
