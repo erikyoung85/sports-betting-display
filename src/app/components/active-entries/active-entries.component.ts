@@ -45,4 +45,8 @@ export class ActiveEntriesComponent {
   onMoreClicked(slip: UnderdogFantasyEntrySlip): void {
     this.dialog.open(AddUserToSlipComponent, { data: slip });
   }
+
+  trackBySlipId(index: number, slip: UnderdogFantasyEntrySlip): string {
+    return slip.id;
+  }
 }

@@ -10,7 +10,7 @@
     <app-auto-scroll *ngIf="((activeSlips$ | async) ?? []) as slips" [autoScrollEnabled]="autoScroll">
       <ng-container *appAutoScrollDirective>
         <div style="padding: .25rem; display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; align-items: flex-start;">
-          <mat-card *ngFor="let slip of slips">
+          <mat-card *ngFor="let slip of slips; trackBy: trackBySlipId">
             <mat-card-header style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;">
               <mat-card-title-group>
                 <mat-card-title style="display: flex; flex-direction: row; gap: 8px; align-items: flex-start;">
