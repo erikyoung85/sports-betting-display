@@ -238,7 +238,7 @@ export class UnderdogFantasyService {
         // override existing settled slips if necessary
         if (!refreshAllSettled) {
           const existingSettledSlips =
-            settledSlipsByUsername[user.username] ?? [];
+            this._settledSlipsByUsername$.value[user.username] ?? [];
           settledSlips = Object.values(
             keyBy([...existingSettledSlips, ...settledSlips], (slip) => slip.id)
           );
