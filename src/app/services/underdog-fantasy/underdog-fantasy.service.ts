@@ -16,7 +16,8 @@ import {
   Observable,
   withLatestFrom,
 } from 'rxjs';
-import { User } from '../user/models/user.model';
+import { GetUserResponseDto } from '../user/dtos/get-user.response.dto';
+import { createUserFromDto, User } from '../user/models/user.model';
 import { UserService } from '../user/user.service';
 import { UnderdogFantasyAuthenticateResponseDto } from './dtos/underdog-fantasy-authenticate.response.dto';
 import { UnderdogFantasyGetActiveSlipsResponseDto } from './dtos/underdog-fantasy-get-active-slips.response.dto';
@@ -473,7 +474,7 @@ export class UnderdogFantasyService {
     };
 
     const response = await lastValueFrom(
-      this.http.post<{ success: boolean }>('/api/underdog/refreshToken', body)
+      this.http.post<GetUserResponseDto>('/api/underdog/refreshToken', body)
     ).catch((err: HttpErrorResponse) => err);
 
     if (response instanceof HttpErrorResponse) {
@@ -485,12 +486,9 @@ export class UnderdogFantasyService {
       return new Error(response.error);
     }
 
-    const refreshedUser: User | undefined = await this.userService.getUser(
-      user.username
-    );
-    if (refreshedUser === undefined) {
-      return new Error('Error fetching user after token refresh');
-    }
+    const refreshedUser = createUserFromDto(response);
+    this.userService.setUser(refreshedUser);
+
     console.info('successfully refreshed token for', refreshedUser.username);
 
     return refreshedUser;

@@ -162,3 +162,25 @@ export async function updateUnderdogFailedAuthAttempt(
 
   return { success: true };
 }
+
+export async function resetUnderdogFailedAuthAttempt(
+  username: string
+): Promise<{ success: boolean } | Error> {
+  const client = await sql.connect();
+
+  const responseOrError = await client
+    .query(
+      `
+    UPDATE "user"
+    SET 
+      underdog_auth_failed_attempts = 0
+    WHERE username = '${username}';`
+    )
+    .catch((err: Error) => err);
+
+  if (responseOrError instanceof Error) {
+    return new Error('Error updating Underdog auth failed attempts');
+  }
+
+  return { success: true };
+}

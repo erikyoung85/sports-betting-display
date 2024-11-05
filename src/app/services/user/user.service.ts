@@ -88,7 +88,7 @@ export class UserService {
     this._userDict$.next(userDict);
   }
 
-  async setUser(user: User): Promise<void> {
+  async postUser(user: User): Promise<void> {
     const userRequestDto: PostUserRequestDto = {
       username: user.username,
       first_name: user.firstName,
@@ -121,12 +121,14 @@ export class UserService {
     }
 
     const responseUser = createUserFromDto(responseDtoOrError);
+    this.setUser(responseUser);
+  }
 
-    const userDict = {
+  setUser(user: User): void {
+    this._userDict$.next({
       ...this._userDict$.value,
-      [responseUser.username]: responseUser,
-    };
-    this._userDict$.next(userDict);
+      [user.username]: user,
+    });
   }
 
   async removeUser(

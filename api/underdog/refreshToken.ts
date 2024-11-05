@@ -1,7 +1,11 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { UnderdogAuthDto } from '../dtos/underdog-auth.dto';
 import { getUser, UserEntity } from '../getUser';
-import { saveUnderdogAuth, updateUnderdogFailedAuthAttempt } from './auth';
+import {
+  resetUnderdogFailedAuthAttempt,
+  saveUnderdogAuth,
+  updateUnderdogFailedAuthAttempt,
+} from './auth';
 
 interface requestDto {
   username: string;
@@ -35,6 +39,12 @@ export default async function handler(
       return response
         .status(400)
         .send('User does not have an underdog refresh token');
+    }
+    const expirationDate = user.underdog_user_token_expiration_date
+      ? new Date(user.underdog_user_token_expiration_date)
+      : undefined;
+    if (expirationDate !== undefined && expirationDate > new Date()) {
+      return response.status(200).json(user);
     }
 
     const requestBody = {
@@ -96,7 +106,18 @@ export default async function handler(
       return response.status(500).send('error saving new token');
     }
 
-    return response.json({ success: true });
+    // reset failed auth attempt count if successful
+    await resetUnderdogFailedAuthAttempt(body.username);
+
+    // get updated user data
+    const updatedUser: UserEntity | Error = await getUser(body.username).catch(
+      (err: Error) => err
+    );
+    if (updatedUser instanceof Error) {
+      return response.status(500).send(updatedUser.message);
+    }
+
+    return response.json(updatedUser);
   } catch (error) {
     return response.status(500).send(error);
   }

@@ -110,7 +110,7 @@ export class UserFormComponent {
         : undefined,
     };
 
-    this.userService.setUser(user);
+    this.userService.postUser(user);
     this.dialogRef.close(this.userForm.value);
   }
 
