@@ -6,9 +6,9 @@ import {
 } from '@angular/core';
 import { isEqual } from 'lodash';
 import { distinctUntilChanged, map, Observable, take } from 'rxjs';
-import { TailedBetInfo } from '../../services/underdog-fantasy/models/tailed-bet-info.model';
-import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
-import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
+import { TailedBetInfo } from '../../../services/underdog-fantasy/models/tailed-bet-info.model';
+import { UnderdogFantasyEntrySlip } from '../../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
+import { UnderdogFantasyService } from '../../../services/underdog-fantasy/underdog-fantasy.service';
 
 @Component({
   selector: 'app-share-link-button',

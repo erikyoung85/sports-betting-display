@@ -108,7 +108,7 @@ export class UnderdogChangeDetectionService {
         //     newStatus: SelectionResult.Lost,
         //   };
 
-        //   this.changesToBeDisplayed.push(change1);
+        //   this.changesToBeDisplayed.push(change2);
         //   this.showChanges();
         // }
 

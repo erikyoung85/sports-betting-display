@@ -7,6 +7,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import { SelectionResult } from '../../../services/underdog-fantasy/enums/selection-result.enum';
 import { UnderdogFantasyEntrySlip } from '../../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
+import { SelectionResultChange } from '../../../services/underdog-fantasy/underdog-fantasy-change-detection.service';
 import { AddUserToSlipComponent } from '../../add-user-to-slip/add-user-to-slip.component';
 
 @Component({
@@ -21,6 +22,7 @@ export class SettledEntryCardComponent implements OnInit {
   @Input() slip!: UnderdogFantasyEntrySlip;
   @Input() forceExpansion = false;
   @Input() showMoreButton = true;
+  @Input() selectionResultChange?: SelectionResultChange;
 
   isExpanded = false;
 

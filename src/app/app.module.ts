@@ -31,17 +31,18 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ActiveEntriesComponent } from './components/active-entries/active-entries.component';
-import { ActiveEntryCardComponent } from './components/active-entries/active-entry-card/active-entry-card.component';
 import { AddUserToSlipComponent } from './components/add-user-to-slip/add-user-to-slip.component';
-import { EntryTypeChipComponent } from './components/entry-type-chip/entry-type-chip.component';
-import { SelectionRowComponent } from './components/selection-row/selection-row.component';
-import { SelectionStatusIconComponent } from './components/selection-status-icon/selection-status-icon.component';
+import { ActiveEntryCardComponent } from './components/entry-card/active-entry-card/active-entry-card.component';
+import { EntryCardComponent } from './components/entry-card/entry-card.component';
+import { EntryTypeChipComponent } from './components/entry-card/entry-type-chip/entry-type-chip.component';
+import { SelectionRowComponent } from './components/entry-card/selection-row/selection-row.component';
+import { SelectionStatusIconComponent } from './components/entry-card/selection-status-icon/selection-status-icon.component';
+import { SettledEntryCardComponent } from './components/entry-card/settled-entry-card/settled-entry-card.component';
+import { ShareLinkButtonComponent } from './components/entry-card/share-link-button/share-link-button.component';
+import { SlipResultPayoutChipComponent } from './components/entry-card/slip-result-payout-chip/slip-result-payout-chip.component';
+import { SlipUserChipsComponent } from './components/entry-card/slip-user-chips/slip-user-chips.component';
 import { SettledEntriesComponent } from './components/settled-entries/settled-entries.component';
-import { SettledEntryCardComponent } from './components/settled-entries/settled-entry-card/settled-entry-card.component';
-import { ShareLinkButtonComponent } from './components/share-link-button/share-link-button.component';
 import { SlipChangeComponent } from './components/slip-change/slip-change.component';
-import { SlipResultPayoutChipComponent } from './components/slip-result-payout-chip/slip-result-payout-chip.component';
-import { SlipUserChipsComponent } from './components/slip-user-chips/slip-user-chips.component';
 import { UserCardComponent } from './components/user-manager/user-card/user-card.component';
 import { ConfirmDeleteUserComponent } from './components/user-manager/user-form/confirm-delete-user/confirm-delete-user.component';
 import { UnderdogLoginFormComponent } from './components/user-manager/user-form/underdog-login-form/underdog-login-form.component';
@@ -72,6 +73,7 @@ import { SharedModule } from './shared/shared.module';
     EntryTypeChipComponent,
     ActiveEntryCardComponent,
     SettledEntryCardComponent,
+    EntryCardComponent,
   ],
   imports: [
     BrowserModule,

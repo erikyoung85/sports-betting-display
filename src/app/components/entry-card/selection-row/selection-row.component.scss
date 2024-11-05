@@ -14,6 +14,9 @@ $theme: mat.define-theme();
 }
 
 .selection-pending {
+    &.selection-elevated {
+        @include mat.elevation(24, blue);
+    }
     mat-progress-bar {
         @include mat.progress-bar-color($theme, $color-variant: primary);
     }

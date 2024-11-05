@@ -25,7 +25,11 @@
   <mat-card-content>
 
     <mat-list>
-      <app-selection-row *ngFor="let selection of slip.selections" [selection]="selection"></app-selection-row>
+      <app-selection-row 
+        *ngFor="let selection of slip.selections" 
+        [selection]="selection"
+        [elevated]="selectionResultChange !== undefined && selectionResultChange.selectionId === selection.id"
+      ></app-selection-row>
     </mat-list>
 
   </mat-card-content>

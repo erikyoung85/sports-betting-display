@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
 import { map } from 'rxjs';
-import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
-import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
+import { UnderdogFantasyEntrySlip } from '../../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
+import { UnderdogFantasyService } from '../../../services/underdog-fantasy/underdog-fantasy.service';
 
 @Component({
   selector: 'app-slip-user-chips',

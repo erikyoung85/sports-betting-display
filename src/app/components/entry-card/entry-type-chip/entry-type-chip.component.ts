@@ -4,8 +4,8 @@ import {
   Input,
   OnInit,
 } from '@angular/core';
-import { EntryType } from '../../services/underdog-fantasy/enums/entry-type.enum';
-import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
+import { EntryType } from '../../../services/underdog-fantasy/enums/entry-type.enum';
+import { UnderdogFantasyEntrySlip } from '../../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 
 enum EntryTypeOptions {
   Power = 'Power',

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input } from '@angular/core';
-import { SelectionResult } from '../../services/underdog-fantasy/enums/selection-result.enum';
-import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
+import { SelectionResult } from '../../../services/underdog-fantasy/enums/selection-result.enum';
+import { UnderdogFantasyEntrySlip } from '../../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 
 @Component({
   selector: 'app-slip-result-payout-chip',

@@ -9,7 +9,7 @@
     (click)="onToggleSelectionExpansion()"
   >
     <mat-card-title-group style="text-wrap: nowrap;">
-      <mat-card-title style="font-size: 16px">{{ slip.fee | money }} to win {{ slip.maxPayout | money }}</mat-card-title>
+      <mat-card-title>{{ slip.fee | money }} to win {{ slip.maxPayout | money }}</mat-card-title>
       <mat-card-subtitle style="display: flex; flex-direction: row; gap: 4px">
         <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
         <app-slip-result-payout-chip [slip]="slip"></app-slip-result-payout-chip>
@@ -33,7 +33,11 @@
   <mat-card-content *ngIf="isExpanded" style="padding: 0">
 
     <mat-list>
-      <app-selection-row *ngFor="let selection of slip.selections" [selection]="selection"></app-selection-row>
+      <app-selection-row 
+        *ngFor="let selection of slip.selections" 
+        [selection]="selection"
+        [elevated]="selectionResultChange !== undefined && selectionResultChange.selectionId === selection.id"
+      ></app-selection-row>
     </mat-list>
 
   </mat-card-content>

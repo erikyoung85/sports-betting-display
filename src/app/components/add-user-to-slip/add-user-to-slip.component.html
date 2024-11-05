@@ -1,17 +1,11 @@
 <h2 mat-dialog-title>Add Users to Slip</h2>
 <mat-dialog-content style="display: flex; flex-direction: row; gap: 1rem;">
-
-  <app-active-entry-card 
-    *ngIf="slip.status === EntryStatus.Active" 
-    [slip]="slip"
-    [showMoreButton]="false"
-  ></app-active-entry-card>
-  <app-settled-entry-card 
-    *ngIf="slip.status === EntryStatus.Settled" 
+  
+  <app-entry-card 
     [slip]="slip" 
     [forceExpansion]="true"
     [showMoreButton]="false"
-  ></app-settled-entry-card>
+  ></app-entry-card>
 
   <ng-content *ngIf="(allUsers$ | async) as users">
     <ng-content *ngIf="(selectedUsernames$ | async) as selectedUsernames">

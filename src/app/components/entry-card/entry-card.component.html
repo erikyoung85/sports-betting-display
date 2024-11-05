@@ -1,0 +1,13 @@
+<app-active-entry-card 
+  *ngIf="slip.status === EntryStatus.Active" 
+  [slip]="slip"
+  [showMoreButton]="showMoreButton"
+  [selectionResultChange]="selectionResultChange"
+></app-active-entry-card>
+<app-settled-entry-card 
+  *ngIf="slip.status === EntryStatus.Settled" 
+  [slip]="slip" 
+  [forceExpansion]="forceExpansion"
+  [showMoreButton]="showMoreButton"
+  [selectionResultChange]="selectionResultChange"
+></app-settled-entry-card>

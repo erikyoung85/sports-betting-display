@@ -19,8 +19,8 @@
   </mat-card-header>
 
   <mat-card-content>
-    <mat-card 
-      *ngIf="slipChange.slip as slip"
+    <div
+      *ngIf="slipChange.slip as slip" 
       style="margin: 2rem;"
       [ngClass]="{
         'slip-change-focus': slipChange.changeType === SlipChangeType.SLIP_RESULT,
@@ -28,32 +28,12 @@
         'lost': slipChange.newStatus === SelectionResult.Lost
       }"
     >
-      <mat-card-header style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;">
-        <mat-card-title-group>
-          <mat-card-title style="display: flex; flex-direction: row; gap: 8px; align-items: flex-start;">
-            <span style="text-wrap: nowrap">{{ slip.fee | money }} down for {{ slip.maxPayout | money }}</span>
-            <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
-          </mat-card-title>
-          <mat-card-subtitle>{{ slip.selectionCount }} Picks to {{ slip.payoutMultiplier }}x Money</mat-card-subtitle>
-          <mat-card-subtitle style="display: flex; flex-direction: row;">
-            <app-selection-status-icon
-              *ngFor="let selection of slip.selections"
-              [selection]="selection"
-            ></app-selection-status-icon>
-            <app-entry-type-chip [slip]="slip" style="margin-left: 4px;"></app-entry-type-chip>
-          </mat-card-subtitle>
-        </mat-card-title-group>
-      </mat-card-header>
-      <mat-card-content>
-  
-        <mat-list>
-          <app-selection-row
-            *ngFor="let selection of slip.selections" [selection]="selection"
-            [elevated]="slipChange.changeType === SlipChangeType.SELECTION_RESULT && slipChange.selectionId === selection.id"
-          ></app-selection-row>
-        </mat-list>
-  
-      </mat-card-content>
-    </mat-card>
+      <app-entry-card 
+        [slip]="slip" 
+        [forceExpansion]="true"
+        [showMoreButton]="false"
+        [selectionResultChange]="slipChange.changeType === SlipChangeType.SELECTION_RESULT ? slipChange : undefined"
+      ></app-entry-card>
+    </div>
   </mat-card-content>
 </mat-card>

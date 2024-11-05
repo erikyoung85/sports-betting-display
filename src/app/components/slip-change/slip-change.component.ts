@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core';
+import { EntryStatus } from '../../services/underdog-fantasy/enums/entry-status.enum';
 import { SelectionResult } from '../../services/underdog-fantasy/enums/selection-result.enum';
 import {
   SlipChange,
@@ -25,6 +26,7 @@ export class SlipChangeComponent implements OnInit, OnDestroy {
 
   SlipChangeType = SlipChangeType;
   SelectionResult = SelectionResult;
+  EntryStatus = EntryStatus;
 
   ngOnInit(): void {
     if (this.slipChange.newStatus === SelectionResult.Won) {
