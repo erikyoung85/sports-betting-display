@@ -7,51 +7,11 @@
     <div *ngIf="(settledSlips$ | async)?.length === 0">No settled bets</div>
 
     <div 
-      *ngIf="((settledSlips$ | async) ?? []) as slips" 
+      *ngIf="(settledSlips$ | async) as slips" 
       style="padding: .25rem; display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; align-items: flex-start; overflow-x: scroll" 
       class="hide-scroll-bar"
     >
-      <mat-card 
-        *ngFor="let slip of slips; trackBy: trackBySlipId" 
-        [ngClass]="{ 
-          'slip-won': slip.result === SelectionResult.Won,
-          'slip-lost': slip.result === SelectionResult.Lost,
-        }"
-      >
-        <mat-card-header 
-          style="cursor: pointer; display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;"
-          (click)="onToggleSelectionExpansion(slip)"
-        >
-          <mat-card-title-group style="text-wrap: nowrap;">
-            <mat-card-title style="font-size: 16px">{{ slip.fee | money }} to win {{ slip.maxPayout | money }}</mat-card-title>
-            <mat-card-subtitle style="display: flex; flex-direction: row; gap: 4px">
-              <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
-              <app-slip-result-payout-chip [slip]="slip"></app-slip-result-payout-chip>
-            </mat-card-subtitle>
-            <mat-card-subtitle style="display: flex; flex-direction: row;">
-              <app-selection-status-icon
-                *ngFor="let selection of slip.selections"
-                [selection]="selection"
-              ></app-selection-status-icon>
-              <app-entry-type-chip [slip]="slip" style="margin-left: 4px;"></app-entry-type-chip>
-            </mat-card-subtitle>
-          </mat-card-title-group>
-
-          <button mat-icon-button *ngIf="slipExpansionState[slip.id]" [matMenuTriggerFor]="moreMenu">
-            <mat-icon fontIcon="more_horiz"></mat-icon>
-          </button>
-          <mat-menu #moreMenu="matMenu">
-            <button mat-menu-item (click)="onMoreClicked($event, slip)">Add to group</button>
-          </mat-menu>
-        </mat-card-header>
-        <mat-card-content *ngIf="slipExpansionState[slip.id]" style="padding: 0">
-  
-          <mat-list>
-            <app-selection-row *ngFor="let selection of slip.selections" [selection]="selection"></app-selection-row>
-          </mat-list>
-
-        </mat-card-content>
-      </mat-card>
+      <app-settled-entry-card *ngFor="let slip of slips; trackBy: trackBySlipId" [slip]="slip"></app-settled-entry-card>
     </div>
 
   </mat-card-content>

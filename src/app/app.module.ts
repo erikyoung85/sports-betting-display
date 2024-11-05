@@ -31,11 +31,13 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ActiveEntriesComponent } from './components/active-entries/active-entries.component';
+import { ActiveEntryCardComponent } from './components/active-entries/active-entry-card/active-entry-card.component';
 import { AddUserToSlipComponent } from './components/add-user-to-slip/add-user-to-slip.component';
 import { EntryTypeChipComponent } from './components/entry-type-chip/entry-type-chip.component';
 import { SelectionRowComponent } from './components/selection-row/selection-row.component';
 import { SelectionStatusIconComponent } from './components/selection-status-icon/selection-status-icon.component';
 import { SettledEntriesComponent } from './components/settled-entries/settled-entries.component';
+import { SettledEntryCardComponent } from './components/settled-entries/settled-entry-card/settled-entry-card.component';
 import { ShareLinkButtonComponent } from './components/share-link-button/share-link-button.component';
 import { SlipChangeComponent } from './components/slip-change/slip-change.component';
 import { SlipResultPayoutChipComponent } from './components/slip-result-payout-chip/slip-result-payout-chip.component';
@@ -68,6 +70,8 @@ import { SharedModule } from './shared/shared.module';
     ShareLinkButtonComponent,
     ConfirmDeleteUserComponent,
     EntryTypeChipComponent,
+    ActiveEntryCardComponent,
+    SettledEntryCardComponent,
   ],
   imports: [
     BrowserModule,

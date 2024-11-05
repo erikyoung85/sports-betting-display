@@ -1,0 +1,35 @@
+<mat-card>
+  <mat-card-header style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start;">
+    <mat-card-title-group>
+      <mat-card-title style="display: flex; flex-direction: row; gap: 8px; align-items: flex-start;">
+        <span style="text-wrap: nowrap;">{{ slip.fee | money }} for {{ slip.maxPayout | money }}</span>
+        <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
+      </mat-card-title>
+      <mat-card-subtitle>{{ slip.selectionCount }} Picks to {{ slip.payoutMultiplier }}x Money</mat-card-subtitle>
+      <mat-card-subtitle style="display: flex; flex-direction: row;">
+        <app-selection-status-icon
+          *ngFor="let selection of slip.selections"
+          [selection]="selection"
+        ></app-selection-status-icon>
+        <app-entry-type-chip [slip]="slip" style="margin-left: 4px;"></app-entry-type-chip>
+      </mat-card-subtitle>
+    </mat-card-title-group>
+
+    <button mat-icon-button *ngIf="showMoreButton" [matMenuTriggerFor]="moreMenu" style="margin-left: 4px;">
+      <mat-icon fontIcon="more_horiz"></mat-icon>
+    </button>
+    <mat-menu #moreMenu="matMenu">
+      <button mat-menu-item (click)="onMoreClicked(slip)">Add to group</button>
+    </mat-menu>
+  </mat-card-header>
+  <mat-card-content>
+
+    <mat-list>
+      <app-selection-row *ngFor="let selection of slip.selections" [selection]="selection"></app-selection-row>
+    </mat-list>
+
+  </mat-card-content>
+  <mat-card-actions [align]="'end'">
+    <app-share-link-button [slip]="slip"></app-share-link-button>
+  </mat-card-actions>
+</mat-card>

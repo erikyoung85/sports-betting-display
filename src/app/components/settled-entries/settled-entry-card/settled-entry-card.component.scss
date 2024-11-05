@@ -1,0 +1,24 @@
+@use '@angular/material' as mat;
+
+$theme: mat.define-theme();
+
+.slip-won {
+    border-width: 2px;
+    border-color: green;
+
+    .result-payout-chip {
+        color: white;
+        background-color: #1a2c1d;
+    }
+}
+
+.slip-lost {
+    border-width: 2px;
+    border-color: mat.get-theme-color($theme, error);;
+
+    .result-payout-chip {
+        color: white;
+        background-color: #391b19;
+    }
+}
+

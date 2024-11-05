@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { map } from 'rxjs';
+import { EntryStatus } from '../../services/underdog-fantasy/enums/entry-status.enum';
 import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
 import { User } from '../../services/user/models/user.model';
@@ -32,6 +33,8 @@ export class AddUserToSlipComponent {
   );
 
   disabled = false;
+
+  EntryStatus = EntryStatus;
 
   async onUserSelectionChange(user: User, selected: boolean): Promise<void> {
     this.disabled = true;
