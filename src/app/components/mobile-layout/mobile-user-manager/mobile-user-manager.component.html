@@ -1,1 +1,6 @@
-<div>user manager</div>
+<div 
+    *ngIf="(users$ | async) as users" 
+    style="display: flex; flex-direction: column; gap: .5rem; padding: 1rem;"
+>
+    <app-user-card *ngFor="let user of users" [user]="user"></app-user-card>
+</div>
