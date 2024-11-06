@@ -1,0 +1,19 @@
+<mat-tab-group [selectedIndex]="1">
+    <mat-tab label="Active">
+        <ng-template matTabContent>
+            <app-mobile-active-entries></app-mobile-active-entries>
+        </ng-template>
+    </mat-tab>
+
+    <mat-tab label="Settled">
+        <ng-template matTabContent>
+            <app-mobile-settled-entries></app-mobile-settled-entries>
+        </ng-template>
+    </mat-tab>
+
+    <mat-tab label="Users">
+        <ng-template matTabContent>
+            <app-mobile-user-manager></app-mobile-user-manager>
+        </ng-template>
+    </mat-tab>
+</mat-tab-group>

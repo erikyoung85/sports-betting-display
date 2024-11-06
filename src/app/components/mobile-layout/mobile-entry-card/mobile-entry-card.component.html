@@ -1,0 +1,41 @@
+<div class="mat-elevation-z2" style="padding: 8px; padding-bottom: 0; border-radius: 4px;">
+    <div 
+        style="display: flex; flex-direction: row; justify-content: space-between; align-items: flex-start"
+        (click)="onToggleExpansion()"
+    >
+        <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="font-size: 16px; font-weight: bold;">
+                {{ slip.fee | money }} for {{ slip.maxPayout | money }}
+            </div>
+            <div *ngIf="!isExpanded" @expandCollapse style="font-size: 11px;">
+                {{ selectionNamesText }}
+            </div>
+        </div>
+        <div 
+            style="display: flex; align-items: flex-end; transition: flex-direction 0.5s ease;"
+            [style.flex-direction]="isExpanded ? 'row-reverse' : 'column'"
+            [style.gap]="isExpanded ? '4px' : '0'"
+        >
+            <mat-icon fontIcon="keyboard_arrow_up" [@rotate]="isExpanded ? 'expanded' : 'collapsed'"></mat-icon>
+            <app-slip-result-payout-chip [slip]="slip"></app-slip-result-payout-chip>
+        </div>
+    </div>
+
+    <div *ngIf="isExpanded" @expandCollapse style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+        <app-mobile-selection-card *ngFor="let selection of slip.selections" [selection]="selection"></app-mobile-selection-card>
+    </div>
+
+    <mat-divider style="margin: 4px 0;"></mat-divider>
+
+    <div style="display: flex; flex-direction: row; gap: 4px; justify-content: space-between">
+        <div style="display: flex; flex-direction: row;">
+            <app-selection-status-icon
+                *ngFor="let selection of slip.selections"
+                [selection]="selection"
+            ></app-selection-status-icon>
+            <app-entry-type-chip [slip]="slip" style="margin-left: 4px;"></app-entry-type-chip>
+        </div>
+
+        <app-slip-user-chips [slip]="slip"></app-slip-user-chips>
+    </div>
+</div>

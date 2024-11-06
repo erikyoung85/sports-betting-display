@@ -1,0 +1,6 @@
+<ng-container *ngIf="(activeSlips$ | async) as activeSlips">
+    <div style="display: flex; flex-direction: column; gap: .5rem; padding: 1rem;">
+        <div *ngIf="activeSlips.length === 0">No active slips found</div>
+        <app-mobile-entry-card *ngFor="let slip of activeSlips; trackBy: trackBySlipId" [slip]="slip"></app-mobile-entry-card>
+    </div>
+</ng-container>

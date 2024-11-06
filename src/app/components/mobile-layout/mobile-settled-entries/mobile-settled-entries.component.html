@@ -1,0 +1,6 @@
+<ng-container *ngIf="(settledSlips$ | async) as settledSlips">
+    <div style="display: flex; flex-direction: column; gap: .5rem; padding: 1rem;">
+        <div *ngIf="settledSlips.length === 0">No settled slips found</div>
+        <app-mobile-entry-card *ngFor="let slip of settledSlips; trackBy: trackBySlipId" [slip]="slip"></app-mobile-entry-card>
+    </div>
+</ng-container>

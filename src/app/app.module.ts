@@ -4,6 +4,7 @@ import {
   provideClientHydration,
 } from '@angular/platform-browser';
 
+import { LayoutModule } from '@angular/cdk/layout';
 import { OverlayModule } from '@angular/cdk/overlay';
 import { CommonModule } from '@angular/common';
 import {
@@ -26,7 +27,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -41,6 +45,12 @@ import { SettledEntryCardComponent } from './components/entry-card/settled-entry
 import { ShareLinkButtonComponent } from './components/entry-card/share-link-button/share-link-button.component';
 import { SlipResultPayoutChipComponent } from './components/entry-card/slip-result-payout-chip/slip-result-payout-chip.component';
 import { SlipUserChipsComponent } from './components/entry-card/slip-user-chips/slip-user-chips.component';
+import { MobileActiveEntriesComponent } from './components/mobile-layout/mobile-active-entries/mobile-active-entries.component';
+import { MobileEntryCardComponent } from './components/mobile-layout/mobile-entry-card/mobile-entry-card.component';
+import { MobileSelectionCardComponent } from './components/mobile-layout/mobile-entry-card/mobile-selection-card/mobile-selection-card.component';
+import { MobileLayoutContainerComponent } from './components/mobile-layout/mobile-layout-container.component';
+import { MobileSettledEntriesComponent } from './components/mobile-layout/mobile-settled-entries/mobile-settled-entries.component';
+import { MobileUserManagerComponent } from './components/mobile-layout/mobile-user-manager/mobile-user-manager.component';
 import { SettledEntriesComponent } from './components/settled-entries/settled-entries.component';
 import { SlipChangeComponent } from './components/slip-change/slip-change.component';
 import { UserCardComponent } from './components/user-manager/user-card/user-card.component';
@@ -74,6 +84,12 @@ import { SharedModule } from './shared/shared.module';
     ActiveEntryCardComponent,
     SettledEntryCardComponent,
     EntryCardComponent,
+    MobileLayoutContainerComponent,
+    MobileSettledEntriesComponent,
+    MobileUserManagerComponent,
+    MobileActiveEntriesComponent,
+    MobileEntryCardComponent,
+    MobileSelectionCardComponent,
   ],
   imports: [
     BrowserModule,
@@ -99,6 +115,10 @@ import { SharedModule } from './shared/shared.module';
     MatButtonToggleModule,
     MatBadgeModule,
     MatTooltipModule,
+    LayoutModule,
+    MatToolbarModule,
+    MatTabsModule,
+    BrowserAnimationsModule,
   ],
   providers: [
     provideClientHydration(),
