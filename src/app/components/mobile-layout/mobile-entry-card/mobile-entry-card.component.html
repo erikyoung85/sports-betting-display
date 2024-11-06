@@ -23,6 +23,7 @@
 
     <div *ngIf="isExpanded" @expandCollapse style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
         <app-mobile-selection-card *ngFor="let selection of slip.selections" [selection]="selection"></app-mobile-selection-card>
+        <app-share-link-button [fullWidth]="true" [slip]="slip" style="margin: 4px 0;"></app-share-link-button>
     </div>
 
     <mat-divider style="margin: 4px 0;"></mat-divider>

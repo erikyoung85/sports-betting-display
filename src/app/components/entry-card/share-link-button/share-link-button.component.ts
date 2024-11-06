@@ -22,6 +22,7 @@ export class ShareLinkButtonComponent implements OnInit {
   ) {}
 
   @Input() slip!: UnderdogFantasyEntrySlip;
+  @Input() fullWidth = false;
 
   shareLinkLoading = false;
   shareLinkErrorMsg: string | undefined = undefined;

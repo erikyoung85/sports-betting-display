@@ -6,5 +6,6 @@
     [matBadge]="(tailedBetInfo$ | async)?.tailedByUsernames?.length" 
     matBadgeSize="medium"
     [matTooltip]="(tailedBetInfo$ | async)?.tailedByUsernames?.join(', ')"
+    [style.width]="fullWidth ? '100%' : 'auto'"
 >Tail bet</button>
 <mat-error *ngIf="shareLinkErrorMsg">{{ shareLinkErrorMsg }}</mat-error>
