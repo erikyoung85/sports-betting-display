@@ -85,6 +85,20 @@ export class UserStatsService {
     )
   );
 
+  statLeaders$ = this.statsByUser$.pipe(
+    map((statsByUser) => {
+      const leaderStatFunc = (userStats: UserStats) => userStats.totalProfit;
+
+      const leaderStatValue = Math.max(
+        ...Object.values(statsByUser).map(leaderStatFunc)
+      );
+
+      return Object.keys(statsByUser).filter(
+        (username) => leaderStatFunc(statsByUser[username]) === leaderStatValue
+      );
+    })
+  );
+
   /** Calculate values for a single slip. If there are multiple group members it will split all values evenly */
   private calculateStatsForSlip(
     slip: UnderdogFantasyEntrySlip,

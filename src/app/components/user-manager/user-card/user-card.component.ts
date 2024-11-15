@@ -5,6 +5,8 @@ import {
   OnChanges,
   SimpleChanges,
 } from '@angular/core';
+import { MatIconRegistry } from '@angular/material/icon';
+import { DomSanitizer } from '@angular/platform-browser';
 import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { UserStats } from '../../../services/user-stats/models/user-stats.model';
 import { UserStatsService } from '../../../services/user-stats/user-stats.service';
@@ -20,8 +22,15 @@ import { UserService } from '../../../services/user/user.service';
 export class UserCardComponent implements OnChanges {
   constructor(
     private readonly userStatsService: UserStatsService,
-    private readonly userService: UserService
-  ) {}
+    private readonly userService: UserService,
+    private readonly matIconRegistry: MatIconRegistry,
+    private sanitizer: DomSanitizer
+  ) {
+    this.matIconRegistry.addSvgIcon(
+      'crown_circle',
+      this.sanitizer.bypassSecurityTrustResourceUrl('assets/crown_circle.svg')
+    );
+  }
 
   @Input() user!: User;
   @Input() elliotMode: boolean = false;
@@ -43,6 +52,10 @@ export class UserCardComponent implements OnChanges {
       }
       return statsByUser[this.user.username];
     })
+  );
+
+  isStatLeader$ = this.userStatsService.statLeaders$.pipe(
+    map((leaders) => leaders.includes(this.user?.username))
   );
 
   ngOnChanges(changes: SimpleChanges): void {
