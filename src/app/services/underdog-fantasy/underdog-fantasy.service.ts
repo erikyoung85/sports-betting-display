@@ -232,8 +232,8 @@ export class UnderdogFantasyService {
     await Promise.all(
       validUsers.map(async (user) => {
         // get settled slips for user
-        let settledSlips =
-          (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
+        let settledSlips: UnderdogFantasyEntrySlip[] = [];
+        // (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
 
         // override existing settled slips if necessary
         if (!refreshAllSettled) {
