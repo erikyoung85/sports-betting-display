@@ -1,21 +1,49 @@
 <mat-card [class.crowned]="isStatLeader$ | async">
   <mat-card-header>
-    <mat-card-title style="font-size: 14px; display: flex; flex-direction: row; gap: 4px; align-items: center; text-wrap: nowrap">
-      <mat-icon svgIcon="crown_circle" class="crown-icon" *ngIf="isStatLeader$ | async"></mat-icon>
+    <mat-card-title
+      style="
+        font-size: 14px;
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        align-items: center;
+        text-wrap: nowrap;
+      "
+    >
+      <mat-icon
+        svgIcon="crown_circle"
+        class="crown-icon"
+        *ngIf="isStatLeader$ | async"
+      ></mat-icon>
       <span>{{ user.firstName }} {{ user.lastName }}</span>
-      <mat-slide-toggle [checked]="user.enabled" (toggleChange)="onToggleUser()" (click)="$event.stopPropagation()"></mat-slide-toggle>
+      <mat-slide-toggle
+        [checked]="user.enabled"
+        (toggleChange)="onToggleUser()"
+        (click)="$event.stopPropagation()"
+      ></mat-slide-toggle>
     </mat-card-title>
   </mat-card-header>
 
   <mat-card-content style="font-size: 12px; text-wrap: nowrap">
-    <div *ngIf="(userStats$ | async) as userStats">
-      <b>Bets pending:</b> {{ userStats.numBetsPending }} ({{ userStats.moneyPending | money }})<br/>
-      <b>Bets won:</b> {{ userStats.numBetsWon }}<br/>
-      <b>Bets lost:</b> {{ userStats.numBetsLost }}<br/>
-      <b>Total profit:</b> 
-        <span [style.color]="(userStats.totalProfit) >= 0 ? 'green' : 'red'">
-          {{ (userStats.totalProfit) | money}}
-        </span><br/>
+    <div *ngIf="userStats$ | async as userStats">
+      <b>Bets pending:</b> {{ userStats.numBetsPending }} ({{
+        userStats.moneyPending | money
+      }})<br />
+      <b>Bets won:</b> {{ userStats.numBetsWon }}<br />
+      <b>Bets lost:</b> {{ userStats.numBetsLost }}<br />
+      <b>Total profit:</b>
+      @if (userStats.totalProfit === 0) {
+      <span> {{ userStats.totalProfit | money }}</span>
+      } @else if (userStats.totalProfit > 0) {
+      <span style="color: green; font-weight: 900">
+        +{{ userStats.totalProfit | money }}</span
+      >
+      } @else if (userStats.totalProfit < 0) {
+      <span style="color: red; font-weight: 900">
+        {{ userStats.totalProfit | money }}</span
+      >
+      }
+      <br />
     </div>
   </mat-card-content>
 </mat-card>

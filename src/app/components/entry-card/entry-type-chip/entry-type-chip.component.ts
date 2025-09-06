@@ -24,16 +24,23 @@ export class EntryTypeChipComponent implements OnInit {
 
   @Input() slip!: UnderdogFantasyEntrySlip;
 
-  entryTypeOption!: EntryTypeOptions;
+  entryTypeOption: EntryTypeOptions | undefined;
 
   EntryTypeOptions = EntryTypeOptions;
 
   ngOnInit(): void {
-    this.entryTypeOption =
-      this.slip.entryType === EntryType.Classic
-        ? this.slip.isFlexPlay
+    switch (this.slip.entryType) {
+      case EntryType.Classic:
+      case EntryType.ClassicGrouped:
+        this.entryTypeOption = this.slip.isFlexPlay
           ? EntryTypeOptions.Flex
-          : EntryTypeOptions.Power
-        : EntryTypeOptions.Streak;
+          : EntryTypeOptions.Power;
+        break;
+      case EntryType.Streak:
+        this.entryTypeOption = EntryTypeOptions.Streak;
+        break;
+      default:
+        this.entryTypeOption = undefined;
+    }
   }
 }

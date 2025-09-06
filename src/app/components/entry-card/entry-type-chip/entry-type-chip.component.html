@@ -1,3 +1,6 @@
-<div class="entry-type-chip {{entryTypeOption}}">
-    {{ entryTypeOption }}
+<div
+  *ngIf="entryTypeOption !== undefined"
+  class="entry-type-chip {{ entryTypeOption }}"
+>
+  {{ entryTypeOption }}
 </div>
