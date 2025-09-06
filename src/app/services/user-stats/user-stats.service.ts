@@ -87,10 +87,15 @@ export class UserStatsService {
 
   statLeaders$ = this.statsByUser$.pipe(
     map((statsByUser) => {
-      const leaderStatFunc = (userStats: UserStats) => userStats.totalProfit;
+      const leaderStatFunc = (userStats: UserStats) =>
+        userStats.numBetsWon + userStats.numBetsLost > 0
+          ? userStats.totalProfit
+          : undefined;
 
       const leaderStatValue = Math.max(
-        ...Object.values(statsByUser).map(leaderStatFunc)
+        ...Object.values(statsByUser)
+          .map(leaderStatFunc)
+          .filter((value) => value !== undefined)
       );
 
       return Object.keys(statsByUser).filter(
