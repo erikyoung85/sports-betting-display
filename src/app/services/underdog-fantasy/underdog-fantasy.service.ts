@@ -4,6 +4,7 @@ import {
   HttpHeaders,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { isAfter, min } from 'date-fns';
 import { groupBy, isEqual, keyBy } from 'lodash';
 import {
   BehaviorSubject,
@@ -31,6 +32,8 @@ import { TailedBetInfo } from './models/tailed-bet-info.model';
 import { UnderdogFantasyEntrySlip } from './models/underdog-fantasy-entry-slip.model';
 
 type SlipToAdditionalUsernames = { [slipId: string]: string[] };
+
+const DATE_CUTOFF = '2025-09-01T00:00:00Z';
 
 @Injectable({
   providedIn: 'root',
@@ -232,8 +235,8 @@ export class UnderdogFantasyService {
     await Promise.all(
       validUsers.map(async (user) => {
         // get settled slips for user
-        let settledSlips: UnderdogFantasyEntrySlip[] = [];
-        // (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
+        let settledSlips: UnderdogFantasyEntrySlip[] =
+          (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
 
         // override existing settled slips if necessary
         if (!refreshAllSettled) {
@@ -290,13 +293,23 @@ export class UnderdogFantasyService {
         return;
       }
 
+      const minSlipTimestamp: Date = min(
+        settledSlipsDto.data.entry_slips.map((slip) => slip.created_at)
+      );
+
       allDtos.push(settledSlipsDto);
-      nextPage = allPages ? settledSlipsDto.meta.next : null;
+
+      nextPage =
+        allPages && isAfter(minSlipTimestamp, DATE_CUTOFF)
+          ? settledSlipsDto.meta.next
+          : null;
     }
 
     const mergedDto = mergeUnderdogFantasySlipDtos(allDtos);
     const settledSlips = UnderdogFantasyEntrySlip.fromDto(mergedDto).filter(
-      (slip) => slip.status !== EntryStatus.Cancelled
+      (slip) =>
+        slip.status !== EntryStatus.Cancelled &&
+        isAfter(slip.createdAt, DATE_CUTOFF)
     );
     return settledSlips;
   }

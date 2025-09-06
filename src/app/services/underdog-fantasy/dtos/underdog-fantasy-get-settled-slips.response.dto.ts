@@ -49,6 +49,7 @@ export interface UnderdogFantasyGetSettledSlipsResponseDto {
       cashout_projected_payout: null;
       champion_points: null;
       current_max_payout_multiplier: string;
+      created_at: string;
       fee: string;
       free_entry: boolean;
       initial_max_payout_multiplier: string;

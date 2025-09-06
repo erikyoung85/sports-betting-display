@@ -152,54 +152,57 @@ export class UnderdogFantasyEntrySlip {
         freeEntry: entrySlipDto.free_entry,
         payout: entrySlipDto.pickem_pool_entry?.payout ?? entrySlipDto.payout,
         boostPayout: entrySlipDto.boost_payout,
-        selections: entrySlipDto.selections.map((selectionDto) => {
-          const option = optionsDict[selectionDto.option_id];
-          const line = lineDict[option.over_under_line_id];
-          const overUnder = overUnderDict[line.over_under_id];
-          const appearance =
-            appearanceDict[overUnder.appearance_stat.appearance_id];
-          const game = gamesDict[appearance.match_id];
-          const player = playersDict[appearance.player_id];
+        selections: entrySlipDto.selections
+          .map((selectionDto) => {
+            const option = optionsDict[selectionDto.option_id];
+            if (option === undefined) return;
+            const line = lineDict[option.over_under_line_id];
+            const overUnder = overUnderDict[line.over_under_id];
+            const appearance =
+              appearanceDict[overUnder.appearance_stat.appearance_id];
+            const game = gamesDict[appearance.match_id];
+            const player = playersDict[appearance.player_id];
 
-          return {
-            id: selectionDto.id,
-            appearanceId: appearance.id,
-            lineId: line.id,
-            playerId: appearance.player_id,
-            positionId: appearance.position_id,
-            teamId: appearance.team_id,
-            optionId: selectionDto.option_id,
-            optionType: selectionDto.option_type,
+            return {
+              id: selectionDto.id,
+              appearanceId: appearance.id,
+              lineId: line.id,
+              playerId: appearance.player_id,
+              positionId: appearance.position_id,
+              teamId: appearance.team_id,
+              optionId: selectionDto.option_id,
+              optionType: selectionDto.option_type,
 
-            title: overUnder.title,
-            player: {
-              id: player.id,
-              country: null,
-              firstName: player.first_name,
-              lastName: player.last_name,
-              imageUrl: player.image_url,
-              positionId: player.position_id,
-              sportId: player.sport_id,
-              teamId: player.team_id,
-            },
-            payoutMultiplier: selectionDto.payout_multiplier,
+              title: overUnder.title,
+              player: {
+                id: player.id,
+                country: null,
+                firstName: player.first_name,
+                lastName: player.last_name,
+                imageUrl: player.image_url,
+                positionId: player.position_id,
+                sportId: player.sport_id,
+                teamId: player.team_id,
+              },
+              payoutMultiplier: selectionDto.payout_multiplier,
 
-            choice: option.choice,
-            choiceDisplay: option.choice_display,
-            liveEvent: line.live_event,
-            liveEventStat: line.live_event_stat,
-            matchProgress: game?.match_progress,
-            stat: overUnder.appearance_stat.stat,
-            statDisplay: overUnder.appearance_stat.display_stat,
-            statTargetValue:
-              selectionDto.discounted_line_value ?? line.stat_value,
-            statValue:
-              appearance.stat_line?.data[overUnder.appearance_stat.stat] ??
-              null,
-            gradedBy: overUnder.appearance_stat.graded_by,
-            result: selectionDto.result,
-          };
-        }),
+              choice: option.choice,
+              choiceDisplay: option.choice_display,
+              liveEvent: line.live_event,
+              liveEventStat: line.live_event_stat,
+              matchProgress: game?.match_progress,
+              stat: overUnder.appearance_stat.stat,
+              statDisplay: overUnder.appearance_stat.display_stat,
+              statTargetValue:
+                selectionDto.discounted_line_value ?? line.stat_value,
+              statValue:
+                appearance.stat_line?.data[overUnder.appearance_stat.stat] ??
+                null,
+              gradedBy: overUnder.appearance_stat.graded_by,
+              result: selectionDto.result,
+            };
+          })
+          .filter((v) => v !== undefined) as IUnderdogFantasySelection[],
         status: entrySlipDto.status,
         createdAt: new Date(entrySlipDto.selections[0].created_at),
         shareLink: entrySlipDto.share_link,
