@@ -235,7 +235,7 @@ export class UnderdogFantasyService {
     await Promise.all(
       validUsers.map(async (user) => {
         // get settled slips for user
-        const allSettledSlips: UnderdogFantasyEntrySlip[] =
+        let settledSlips: UnderdogFantasyEntrySlip[] =
           (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
 
         // get active slips for user
@@ -249,27 +249,24 @@ export class UnderdogFantasyService {
             ? allActiveSlips.filter(
                 (activeSlip) => activeSlip.status === EntryStatus.Active
               )
-            : [];
+            : undefined;
 
         // merge settled slips with existing settled slips, removing duplicates
-        let settledSlips: UnderdogFantasyEntrySlip[] = Object.values(
-          keyBy([...allSettledSlips, ...settledActiveSlips], (slip) => slip.id)
-        );
+        // let settledSlips: UnderdogFantasyEntrySlip[] = Object.values(
+        //   keyBy([...allSettledSlips, ...settledActiveSlips], (slip) => slip.id)
+        // );
 
         // override existing settled slips if necessary
         if (!refreshAllSettled) {
           const existingSettledSlips =
             this._settledSlipsByUsername$.value[user.username] ?? [];
           settledSlips = Object.values(
-            keyBy(
-              [...existingSettledSlips, ...allSettledSlips],
-              (slip) => slip.id
-            )
+            keyBy([...existingSettledSlips, ...settledSlips], (slip) => slip.id)
           );
         }
 
-        activeSlipsByUsername[user.username] = [...activeSlips];
-        settledSlipsByUsername[user.username] = [...settledSlips];
+        activeSlipsByUsername[user.username] = activeSlips;
+        settledSlipsByUsername[user.username] = settledSlips;
       })
     );
 
