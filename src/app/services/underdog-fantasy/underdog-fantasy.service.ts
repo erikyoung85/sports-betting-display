@@ -254,10 +254,8 @@ export class UnderdogFantasyService {
         );
         const activeSlips =
           allActiveSlips !== undefined
-            ? allActiveSlips.filter((activeSlip) =>
-                settledActiveSlips.every(
-                  (settledSlip) => settledSlip.id !== activeSlip.id
-                )
+            ? allActiveSlips.filter(
+                (activeSlip) => activeSlip.status === EntryStatus.Active
               )
             : [];
 
