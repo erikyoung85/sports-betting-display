@@ -93,9 +93,9 @@ export class UserStatsService {
           : undefined;
 
       const leaderStatValue = Math.max(
-        ...Object.values(statsByUser)
+        ...(Object.values(statsByUser)
           .map(leaderStatFunc)
-          .filter((value) => value !== undefined)
+          .filter((value) => value !== undefined) as number[])
       );
 
       return Object.keys(statsByUser).filter(

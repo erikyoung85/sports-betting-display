@@ -73,6 +73,13 @@ export class UnderdogFantasyEntrySlip {
   }
 
   get status(): EntryStatus {
+    if (
+      !this.isFlexPlay &&
+      this.selections.some((s) => s.result === SelectionResult.Lost)
+    ) {
+      return EntryStatus.Settled;
+    }
+
     return this.props.status;
   }
 
