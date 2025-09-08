@@ -239,22 +239,7 @@ export class UnderdogFantasyService {
           (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
 
         // get active slips for user
-        const allActiveSlips = await this.getActiveSlips(user);
-        // Find active slips that are actually settled now and remove them from activeSlips
-        const settledActiveSlips = (allActiveSlips ?? []).filter(
-          (activeSlip) => activeSlip.status === EntryStatus.Settled
-        );
-        const activeSlips =
-          allActiveSlips !== undefined
-            ? allActiveSlips.filter(
-                (activeSlip) => activeSlip.status === EntryStatus.Active
-              )
-            : undefined;
-
-        // merge settled slips with existing settled slips, removing duplicates
-        // let settledSlips: UnderdogFantasyEntrySlip[] = Object.values(
-        //   keyBy([...allSettledSlips, ...settledActiveSlips], (slip) => slip.id)
-        // );
+        const activeSlips = await this.getActiveSlips(user);
 
         // override existing settled slips if necessary
         if (!refreshAllSettled) {
