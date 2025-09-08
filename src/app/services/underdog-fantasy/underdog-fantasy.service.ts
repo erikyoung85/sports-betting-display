@@ -263,8 +263,8 @@ export class UnderdogFantasyService {
           );
         }
 
-        activeSlipsByUsername[user.username] = activeSlips;
-        settledSlipsByUsername[user.username] = settledSlips;
+        activeSlipsByUsername[user.username] = [...activeSlips];
+        settledSlipsByUsername[user.username] = [...settledSlips];
       })
     );
 
