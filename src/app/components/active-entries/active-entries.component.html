@@ -1,19 +1,39 @@
 <mat-card>
-  <mat-card-header style="display: flex; flex-direction: row; gap: 8px; align-items: center;">
+  <mat-card-header
+    style="display: flex; flex-direction: row; gap: 8px; align-items: center"
+  >
     <mat-card-title>Active bets</mat-card-title>
-    <mat-slide-toggle (toggleChange)="onAutoScrollToggleChange()" [checked]="autoScroll"></mat-slide-toggle>
+    <mat-slide-toggle
+      (toggleChange)="onAutoScrollToggleChange()"
+      [checked]="autoScroll()"
+    ></mat-slide-toggle>
   </mat-card-header>
   <mat-card-content>
+    <div *ngIf="(activeSlips$ | async)?.length === 0">
+      No active bets placed
+    </div>
 
-    <div *ngIf="(activeSlips$ | async)?.length === 0">No active bets placed</div>
-
-    <app-auto-scroll *ngIf="((activeSlips$ | async) ?? []) as slips" [autoScrollEnabled]="autoScroll">
+    <app-auto-scroll
+      *ngIf="(activeSlips$ | async) ?? [] as slips"
+      [autoScrollEnabled]="autoScroll()"
+    >
       <ng-container *appAutoScrollDirective>
-        <div style="padding: .25rem; display: flex; flex-direction: row; gap: 8px; justify-content: flex-start; align-items: flex-start;">
-          <app-active-entry-card *ngFor="let slip of slips; trackBy: trackBySlipId" [slip]="slip"></app-active-entry-card>
+        <div
+          style="
+            padding: 0.25rem;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            justify-content: flex-start;
+            align-items: flex-start;
+          "
+        >
+          <app-active-entry-card
+            *ngFor="let slip of slips; trackBy: trackBySlipId"
+            [slip]="slip"
+          ></app-active-entry-card>
         </div>
       </ng-container>
     </app-auto-scroll>
-
   </mat-card-content>
 </mat-card>

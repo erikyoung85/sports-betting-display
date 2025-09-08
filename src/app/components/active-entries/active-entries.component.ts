@@ -1,6 +1,7 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { combineLatest, map } from 'rxjs';
+import { EntryStatus } from 'src/app/services/underdog-fantasy/enums/entry-status.enum';
 import { UnderdogFantasyEntrySlip } from '../../services/underdog-fantasy/models/underdog-fantasy-entry-slip.model';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
 import { UserService } from '../../services/user/user.service';
@@ -19,7 +20,7 @@ export class ActiveEntriesComponent {
     private readonly userService: UserService
   ) {}
 
-  autoScroll = false;
+  autoScroll = signal(false);
 
   activeSlips$ = combineLatest([
     this.underdogFantasyService.activeSlipsByUsername$,
@@ -29,7 +30,10 @@ export class ActiveEntriesComponent {
       const slips: UnderdogFantasyEntrySlip[] = [];
       Object.keys(activeSlipsByUsername).forEach((username) => {
         if (userDict[username].enabled) {
-          slips.push(...(activeSlipsByUsername[username] ?? []));
+          const userSlips = (activeSlipsByUsername[username] ?? []).filter(
+            (slip) => slip.status === EntryStatus.Active
+          );
+          slips.push(...userSlips);
         }
       });
       return slips.sort(
@@ -39,7 +43,7 @@ export class ActiveEntriesComponent {
   );
 
   onAutoScrollToggleChange(): void {
-    this.autoScroll = !this.autoScroll;
+    this.autoScroll.update((currValue) => !currValue);
   }
 
   onMoreClicked(slip: UnderdogFantasyEntrySlip): void {
