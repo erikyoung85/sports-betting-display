@@ -1,36 +1,53 @@
-<div 
-    style="border-radius: 8px;"
-    class="selection" 
-    [ngClass]="{
-        'pending': selection.result === SelectionResult.Pending,
-        'won': selection.result === SelectionResult.Won,
-        'lost': selection.result === SelectionResult.Lost,
-        'pushed': selection.result === SelectionResult.Pushed
-    }"
+<div
+  style="border-radius: 8px"
+  class="selection"
+  [ngClass]="{
+    pending: selection.result === SelectionResult.Pending,
+    won: selection.result === SelectionResult.Won,
+    lost: selection.result === SelectionResult.Lost,
+    pushed: selection.result === SelectionResult.Pushed
+  }"
 >
-    <div 
-        style="padding: 8px; display: flex; flex-direction: row; gap: 16px; justify-content: flex-start; align-items: center;"
-    >
-        <div class="avatar">
-            <img [src]="selection.player.imageUrl"/>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 4px;">
-            <div style="font-size: 16px; font-weight: bold;">
-                {{ selection.playerName }}
-            </div>
-            <div style="font-size: 12px;">
-                <span style="font-weight: 700">{{ selection.choiceDisplay }}</span>
-                {{ selection.statTargetValue }} {{ selection.statDisplay }}            
-            </div>
-        </div>
+  <div
+    style="
+      padding: 8px;
+      display: flex;
+      flex-direction: row;
+      gap: 16px;
+      justify-content: flex-start;
+      align-items: center;
+    "
+  >
+    <div class="avatar">
+      <img *ngIf="selection.player" [src]="selection.player.imageUrl" />
     </div>
 
-    <mat-progress-bar mode="determinate" [value]="selection.progressValue"></mat-progress-bar>
-
-    <div style="padding: 4px 8px; display: flex; flex-direction: row; justify-content: space-between; font-size: 11px;">
-        <div></div>
-        <div>{{ selection.statValue }} {{ selection.statDisplay }} </div>
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <div style="font-size: 16px; font-weight: bold">
+        {{ selection.playerName }}
+      </div>
+      <div style="font-size: 12px">
+        <span style="font-weight: 700">{{ selection.choiceDisplay }}</span>
+        {{ selection.statTargetValue }} {{ selection.statDisplay }}
+      </div>
     </div>
+  </div>
 
+  <mat-progress-bar
+    mode="determinate"
+    [value]="selection.progressValue"
+  ></mat-progress-bar>
+
+  <div
+    style="
+      padding: 4px 8px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      font-size: 11px;
+    "
+  >
+    <div></div>
+    <div>{{ selection.statValue }} {{ selection.statDisplay }}</div>
+  </div>
 </div>

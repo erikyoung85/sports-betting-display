@@ -46,7 +46,7 @@ export class MobileEntryCardComponent implements OnInit {
 
   ngOnInit(): void {
     this.selectionNamesText = this.slip.selections
-      .map((selection) => selection.player.lastName)
+      .map((selection) => selection.player?.lastName ?? selection.choiceDisplay)
       .join(', ');
   }
 

@@ -1,4 +1,4 @@
-<mat-list-item 
+<mat-list-item
   [lines]="2"
   [ngClass]="{
     'selection-elevated': elevated,
@@ -7,15 +7,34 @@
     'selection-lost': selection.result === SelectionResult.Lost,
     'selection-pushed': selection.result === SelectionResult.Pushed
   }"
-  >
-  <img matListItemAvatar [src]="selection.player.imageUrl">
-  <span matListItemTitle style="font-weight: 700;">{{ selection.playerName }}</span>
-  <span matListItemLine style="margin-top: -4px; margin-bottom: 1px;">
+>
+  <img
+    matListItemAvatar
+    *ngIf="selection.player"
+    [src]="selection.player.imageUrl"
+  />
+  <span matListItemTitle style="font-weight: 700">{{
+    selection.playerName
+  }}</span>
+  <span matListItemLine style="margin-top: -4px; margin-bottom: 1px">
     <span style="font-weight: 700">{{ selection.choiceDisplay }}</span>
     {{ selection.statTargetValue }} {{ selection.statDisplay }}
   </span>
-  <span matListItemLine style="display: flex; flex-direction: row; align-items: center; max-height: 10px;">
-    <mat-progress-bar mode="determinate" [value]="selection.progressValue"></mat-progress-bar>
-    <span style="font-size: 12px; line-height: normal; margin-left: 2px;">{{ selection.statValue }}/{{ selection.statTargetValue }}</span>
+  <span
+    matListItemLine
+    style="
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      max-height: 10px;
+    "
+  >
+    <mat-progress-bar
+      mode="determinate"
+      [value]="selection.progressValue"
+    ></mat-progress-bar>
+    <span style="font-size: 12px; line-height: normal; margin-left: 2px"
+      >{{ selection.statValue }}/{{ selection.statTargetValue }}</span
+    >
   </span>
 </mat-list-item>

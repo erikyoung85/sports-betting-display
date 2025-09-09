@@ -126,7 +126,7 @@ export class UnderdogFantasyEntrySlip {
   constructor(private readonly props: IUnderdogFantasyEntrySlip) {
     this._selections = props.selections
       .map((selection) => new UnderdogFantasySelection(selection))
-      .sort((a, b) => a.player.id.localeCompare(b.player.id));
+      .sort((a, b) => a.choiceDisplay.localeCompare(b.choiceDisplay));
   }
 
   static fromDto(
@@ -181,16 +181,35 @@ export class UnderdogFantasyEntrySlip {
               optionType: selectionDto.option_type,
 
               title: overUnder.title,
-              player: {
-                id: player.id,
-                country: null,
-                firstName: player.first_name,
-                lastName: player.last_name,
-                imageUrl: player.image_url,
-                positionId: player.position_id,
-                sportId: player.sport_id,
-                teamId: player.team_id,
-              },
+              player:
+                player !== undefined
+                  ? {
+                      id: player.id,
+                      country: null,
+                      firstName: player.first_name,
+                      lastName: player.last_name,
+                      imageUrl: player.image_url,
+                      positionId: player.position_id,
+                      sportId: player.sport_id,
+                      teamId: player.team_id,
+                    }
+                  : undefined,
+              game:
+                game !== undefined
+                  ? {
+                      id: game.id,
+                      title: game.title,
+                      abbreviatedTitle: game.abbreviated_title,
+                      shortTitle: game.short_title,
+                      sportId: game.sport_id,
+                      homeTeamId: game.home_team_id,
+                      awayTeamId: game.away_team_id,
+                      homeTeamScore: game.home_team_score,
+                      awayTeamScore: game.away_team_score,
+                      matchProgress: game.match_progress,
+                      type: 'Game',
+                    }
+                  : undefined,
               payoutMultiplier: selectionDto.payout_multiplier,
 
               choice: option.choice,

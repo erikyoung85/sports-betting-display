@@ -1,6 +1,7 @@
 import { EntryOptionType } from '../enums/entry-option-type.enum';
 import { GradedBy } from '../enums/graded-by.enum';
 import { SelectionResult } from '../enums/selection-result.enum';
+import { UnderdogFantasyGame } from './underdog-fantasy-game.model';
 import { UnderdogFantasyPlayer } from './underdog-fantasy-player.model';
 
 export interface IUnderdogFantasySelection {
@@ -13,7 +14,8 @@ export interface IUnderdogFantasySelection {
   positionId: string;
   teamId: string;
   title: string;
-  player: UnderdogFantasyPlayer;
+  player: UnderdogFantasyPlayer | undefined;
+  game: UnderdogFantasyGame | undefined;
   payoutMultiplier: string;
   choice: 'higher' | 'lower';
   choiceDisplay: string;
@@ -41,12 +43,18 @@ export class UnderdogFantasySelection {
     return this.props.title;
   }
 
-  get player(): UnderdogFantasyPlayer {
+  get player(): UnderdogFantasyPlayer | undefined {
     return this.props.player;
   }
 
+  get game(): UnderdogFantasyGame | undefined {
+    return this.props.game;
+  }
+
   get playerName(): string {
-    return `${this.props.player.firstName} ${this.props.player.lastName}`;
+    return this.player !== undefined
+      ? `${this.player.firstName} ${this.player.lastName}`
+      : `${this.statDisplay}`;
   }
 
   get payoutMultiplier(): number {

@@ -143,6 +143,8 @@ export interface UnderdogFantasyGetSettledSlipsResponseDto {
       sport_id: SportType;
       status: GameStatus;
       title: string;
+      abbreviated_title: string;
+      short_title: string;
       type: 'Game';
       year: number;
     }[];
