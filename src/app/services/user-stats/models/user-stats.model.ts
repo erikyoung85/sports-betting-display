@@ -9,4 +9,5 @@ export interface UserStats {
   moneyLost: number;
   moneyPending: number;
   totalProfit: number;
+  totalMultiplier: number;
 }
