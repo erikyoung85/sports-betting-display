@@ -29,8 +29,16 @@
       <b>Bets pending:</b> {{ userStats.numBetsPending }} ({{
         userStats.moneyPending | money
       }})<br />
-      <b>Bets won:</b> {{ userStats.numBetsWon }}<br />
-      <b>Bets lost:</b> {{ userStats.numBetsLost }}<br />
+      <b>Bet record:</b> {{ userStats.numBetsWon }}/{{
+        userStats.numBetsWon + userStats.numBetsLost
+      }}
+      @if (userStats.numBetsWon === 0) { (0%) } @else { ({{
+        userStats.numBetsWon / (userStats.numBetsWon + userStats.numBetsLost)
+          | percent
+      }}) }
+      <br />
+      <b>Average Wager:</b>
+      {{ userStats.moneyBet / userStats.numBetsPlaced | money }}<br />
       <b>Total profit:</b>
       @if (userStats.totalProfit === 0) {
       <span> {{ userStats.totalProfit | money }}</span>
