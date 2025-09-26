@@ -1,14 +1,19 @@
 <mat-card>
-  <mat-card-header style="display: flex; flex-direction: row; gap: 8px; justify-content: space-between;">
-    <mat-card-title style="display: flex; flex-direction: row; gap: 8px;">
+  <mat-card-header
+    style="
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+      justify-content: space-between;
+    "
+  >
+    <mat-card-title style="display: flex; flex-direction: row; gap: 8px">
       Users
-      <button mat-raised-button (click)="onAddUser()">
-        Add User
-      </button>
+      <button mat-raised-button (click)="onAddUser()">Add User</button>
 
-      <mat-button-toggle-group 
-        class="small" 
-        [hideSingleSelectionIndicator]="true" 
+      <mat-button-toggle-group
+        class="small"
+        [hideSingleSelectionIndicator]="true"
         [formControl]="selectedCardAlignment"
       >
         <mat-button-toggle [value]="CardAlignment.Left">
@@ -18,20 +23,44 @@
           <mat-icon fontIcon="arrow_forward" class="small-icon"></mat-icon>
         </mat-button-toggle>
       </mat-button-toggle-group>
-
     </mat-card-title>
-    <span *ngIf="(secondsUpdatedAgo$ | async) as secondsUpdatedAgo" style="font-size: 10px; font-weight: 300">
+    <span
+      *ngIf="secondsUpdatedAgo$ | async as secondsUpdatedAgo"
+      style="font-size: 10px; font-weight: 300"
+    >
       data updated {{ secondsUpdatedAgo }} seconds ago
     </span>
   </mat-card-header>
 
-  <mat-card-content 
-    *ngIf="(users$ | async) as users"
-    class="user-card-scroll-container hide-scroll-bar"
-    [style.justify-content]="selectedCardAlignment.value === CardAlignment.Left ? 'flex-start' : 'flex-end'"
+  <mat-card-content
+    *ngIf="users$ | async as users"
+    class="hide-scroll-bar"
+    [style.justify-content]="
+      selectedCardAlignment.value === CardAlignment.Left
+        ? 'flex-start'
+        : 'flex-end'
+    "
   >
-
-    <app-user-card *ngFor="let user of users" [user]="user" (click)="onCardClick(user)" style="cursor: pointer"></app-user-card>
-
+    <app-auto-scroll [autoScrollEnabled]="true">
+      <ng-container *appAutoScrollDirective>
+        <div
+          style="
+            padding: 0.25rem;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            justify-content: flex-start;
+            align-items: flex-start;
+          "
+        >
+          <app-user-card
+            *ngFor="let user of users"
+            [user]="user"
+            (click)="onCardClick(user)"
+            style="cursor: pointer"
+          ></app-user-card>
+        </div>
+      </ng-container>
+    </app-auto-scroll>
   </mat-card-content>
 </mat-card>

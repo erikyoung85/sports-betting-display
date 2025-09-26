@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { interval, map, withLatestFrom } from 'rxjs';
+import { interval, map, Subject, withLatestFrom } from 'rxjs';
 import { UnderdogFantasyService } from '../../services/underdog-fantasy/underdog-fantasy.service';
 import { User } from '../../services/user/models/user.model';
 import { UserService } from '../../services/user/user.service';
@@ -19,6 +19,7 @@ enum CardAlignment {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UserManagerComponent {
+  private readonly unsubscribe$ = new Subject<void>();
   constructor(
     private readonly dialog: MatDialog,
     private readonly userService: UserService,
