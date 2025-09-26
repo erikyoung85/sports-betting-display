@@ -9,5 +9,15 @@ export interface UserStats {
   moneyLost: number;
   moneyPending: number;
   totalProfit: number;
+
   totalMultiplier: number;
+  avgMultiplier: number;
+  medianMultiplier: number;
+
+  totalWagered: number;
+  avgWager: number;
+  medianWager: number;
+
+  biggestWin: number;
+  biggestLoss: number;
 }

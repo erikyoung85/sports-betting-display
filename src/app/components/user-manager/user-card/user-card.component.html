@@ -42,21 +42,17 @@
       }})
       <br />
 
-      <b>Average Wager:</b>
-      {{
-        (userStats.moneyBet === 0
-          ? 0
-          : userStats.moneyBet / userStats.numBetsPlaced
-        ) | money
+      <b>Wager mean/median:</b>
+      {{ userStats.avgWager | money }} / {{ userStats.medianWager | money
       }}<br />
 
-      <b>Average Multiplier:</b>
-      {{
-        userStats.totalMultiplier === 0
-          ? 0
-          : (userStats.totalMultiplier / userStats.numBetsPlaced
-            | number : "1.2-2")
-      }}x<br />
+      <b>Multiplier mean/median:</b>
+      {{ userStats.avgMultiplier | number : "1.2-2" }}x /
+      {{ userStats.medianMultiplier | number : "1.2-2" }}x<br />
+
+      <b>Biggest win/loss:</b>
+      {{ userStats.biggestWin | money }} / {{ userStats.biggestLoss | money
+      }}<br />
 
       <b>Total profit:</b>
       @if (userStats.totalProfit === 0) {

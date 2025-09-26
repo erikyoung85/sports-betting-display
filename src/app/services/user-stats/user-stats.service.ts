@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { mean } from 'lodash';
 import { combineLatest, map } from 'rxjs';
+import { median } from 'src/app/shared/utils/median.util';
 import { EntryStatus } from '../underdog-fantasy/enums/entry-status.enum';
 import { SelectionResult } from '../underdog-fantasy/enums/selection-result.enum';
 import { UnderdogFantasyEntrySlip } from '../underdog-fantasy/models/underdog-fantasy-entry-slip.model';
@@ -40,6 +42,13 @@ export class UserStatsService {
               moneyPending: 0,
               totalProfit: 0,
               totalMultiplier: 0,
+              avgMultiplier: 0,
+              medianMultiplier: 0,
+              totalWagered: 0,
+              avgWager: 0,
+              medianWager: 0,
+              biggestLoss: 0,
+              biggestWin: 0,
             })
         );
 
@@ -80,8 +89,30 @@ export class UserStatsService {
               statsByUser[username].totalProfit += caluclatedValues.totalProfit;
               statsByUser[username].totalMultiplier +=
                 caluclatedValues.multiplier;
+
+              statsByUser[username].biggestWin = Math.max(
+                statsByUser[username].biggestWin,
+                caluclatedValues.moneyWon
+              );
+              statsByUser[username].biggestLoss = Math.max(
+                statsByUser[username].biggestLoss,
+                caluclatedValues.moneyLost
+              );
             });
           });
+
+          // Multiplier calculations
+          const multipliers: number[] = slips.map(
+            (slip) => slip.payoutMultiplier
+          );
+          statsByUser[username].avgMultiplier =
+            multipliers.length > 0 ? mean(multipliers) : 0;
+          statsByUser[username].medianMultiplier = median(multipliers) ?? 0;
+
+          // Wager calculations
+          const wagers: number[] = slips.map((slip) => slip.fee);
+          statsByUser[username].avgWager = wagers.length > 0 ? mean(wagers) : 0;
+          statsByUser[username].medianWager = median(wagers) ?? 0;
         });
         return statsByUser;
       }
