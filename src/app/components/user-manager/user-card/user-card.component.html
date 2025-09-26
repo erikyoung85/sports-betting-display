@@ -1,4 +1,6 @@
-<mat-card [class.crowned]="isStatLeader$ | async">
+@let isLeader = (isStatLeader$ | async) ?? false; @let isLoser =
+(!(isStatLeader$ | async) && (isStatLoser$ | async)) ?? false;
+<mat-card [class.crowned]="isLeader" [class.loser]="isLoser">
   <mat-card-header>
     <mat-card-title
       style="
@@ -13,7 +15,12 @@
       <mat-icon
         svgIcon="crown_circle"
         class="crown-icon"
-        *ngIf="isStatLeader$ | async"
+        *ngIf="isLeader"
+      ></mat-icon>
+      <mat-icon
+        svgIcon="sad_face"
+        class="loser-icon"
+        *ngIf="isLoser"
       ></mat-icon>
       <span>{{ user.firstName }} {{ user.lastName }}</span>
       <mat-slide-toggle

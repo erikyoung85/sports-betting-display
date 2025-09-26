@@ -138,6 +138,25 @@ export class UserStatsService {
     })
   );
 
+  statLosers$ = this.statsByUser$.pipe(
+    map((statsByUser) => {
+      const loserStatFunc = (userStats: UserStats) =>
+        userStats.numBetsWon + userStats.numBetsLost > 0
+          ? userStats.totalProfit
+          : undefined;
+
+      const loserStatValue = Math.min(
+        ...(Object.values(statsByUser)
+          .map(loserStatFunc)
+          .filter((value) => value !== undefined) as number[])
+      );
+
+      return Object.keys(statsByUser).filter(
+        (username) => loserStatFunc(statsByUser[username]) === loserStatValue
+      );
+    })
+  );
+
   /** Calculate values for a single slip. If there are multiple group members it will split all values evenly */
   private calculateStatsForSlip(
     slip: UnderdogFantasyEntrySlip,

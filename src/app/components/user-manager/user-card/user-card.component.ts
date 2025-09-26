@@ -30,6 +30,10 @@ export class UserCardComponent implements OnChanges {
       'crown_circle',
       this.sanitizer.bypassSecurityTrustResourceUrl('assets/crown_circle.svg')
     );
+    this.matIconRegistry.addSvgIcon(
+      'sad_face',
+      this.sanitizer.bypassSecurityTrustResourceUrl('assets/sad_face.svg')
+    );
   }
 
   @Input() user!: User;
@@ -56,6 +60,10 @@ export class UserCardComponent implements OnChanges {
 
   isStatLeader$ = this.userStatsService.statLeaders$.pipe(
     map((leaders) => leaders.includes(this.user?.username))
+  );
+
+  isStatLoser$ = this.userStatsService.statLosers$.pipe(
+    map((losers) => losers.includes(this.user?.username))
   );
 
   ngOnChanges(changes: SimpleChanges): void {
