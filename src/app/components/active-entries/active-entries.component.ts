@@ -20,7 +20,7 @@ export class ActiveEntriesComponent {
     private readonly userService: UserService
   ) {}
 
-  autoScroll = signal(false);
+  autoScroll = signal(true);
 
   activeSlips$ = combineLatest([
     this.underdogFantasyService.activeSlipsByUsername$,
