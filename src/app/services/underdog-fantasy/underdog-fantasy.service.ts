@@ -239,7 +239,7 @@ export class UnderdogFantasyService {
           (await this.getSettledSlips(user, refreshAllSettled)) ?? [];
 
         // get active slips for user
-        const activeSlips = await this.getActiveSlips(user);
+        const activeSlips = (await this.getActiveSlips(user)) ?? [];
 
         // override existing settled slips if necessary
         if (!refreshAllSettled) {
@@ -249,6 +249,18 @@ export class UnderdogFantasyService {
             keyBy([...existingSettledSlips, ...settledSlips], (slip) => slip.id)
           );
         }
+
+        const activeSlipIds = new Set(activeSlips.map((slip) => slip.id));
+        const settledSlipIds = new Set(settledSlips.map((slip) => slip.id));
+
+        // Carry over active slips that arent in the settled slips
+        (this._activeSlipsByUsername$.value[user.username] ?? []).forEach(
+          (slip) => {
+            if (!settledSlipIds.has(slip.id) && !activeSlipIds.has(slip.id)) {
+              activeSlips.push(slip);
+            }
+          }
+        );
 
         activeSlipsByUsername[user.username] = activeSlips;
         settledSlipsByUsername[user.username] = settledSlips;
