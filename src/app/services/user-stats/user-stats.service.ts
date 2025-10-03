@@ -40,6 +40,7 @@ export class UserStatsService {
               moneyWon: 0,
               moneyLost: 0,
               moneyPending: 0,
+              payoutPending: 0,
               totalProfit: 0,
               totalMultiplier: 0,
               avgMultiplier: 0,
@@ -86,6 +87,8 @@ export class UserStatsService {
               statsByUser[username].moneyLost += caluclatedValues.moneyLost;
               statsByUser[username].moneyPending +=
                 caluclatedValues.moneyPending;
+              statsByUser[username].payoutPending +=
+                caluclatedValues.payoutPending;
               statsByUser[username].totalProfit += caluclatedValues.totalProfit;
               statsByUser[username].totalMultiplier +=
                 caluclatedValues.multiplier;
@@ -169,6 +172,7 @@ export class UserStatsService {
     moneyWon: number;
     moneyLost: number;
     moneyPending: number;
+    payoutPending: number;
     totalProfit: number;
     multiplier: number;
   } {
@@ -181,6 +185,7 @@ export class UserStatsService {
     let moneyWon = 0;
     let moneyLost = 0;
     let moneyPending = 0;
+    let payoutPending = 0;
     let totalProfit = 0;
     if (betSettled) {
       moneyWon = betWon ? slip.resultPayout ?? 0 : 0;
@@ -190,6 +195,7 @@ export class UserStatsService {
 
     if (betPending) {
       moneyPending = slip.fee;
+      payoutPending = slip.maxPayout;
     }
 
     return {
@@ -200,6 +206,7 @@ export class UserStatsService {
       moneyWon: moneyWon / numUsersInGroup,
       moneyLost: moneyLost / numUsersInGroup,
       moneyPending: moneyPending / numUsersInGroup,
+      payoutPending: payoutPending / numUsersInGroup,
       totalProfit: totalProfit / numUsersInGroup,
       multiplier: multiplier,
     };
